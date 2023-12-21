@@ -12,7 +12,15 @@ use IEEE.STD_LOGIC_1164.all;
 --tkrotk
 entity top is
     port (
-        CLK100MHZ : in std_logic
+        CLK100MHZ : in std_logic;
+        -- signali za VGA
+        CPU_RESETN : in STD_LOGIC;
+        SW         : in STD_LOGIC_VECTOR(0 downto 0);
+        VGA_HS : out STD_LOGIC;
+        VGA_VS : out STD_LOGIC;
+        VGA_R  : out STD_LOGIC_VECTOR(3 downto 0);
+        VGA_G  : out STD_LOGIC_VECTOR(3 downto 0);
+        VGA_B  : out STD_LOGIC_VECTOR(3 downto 0)
     );
 end entity;
 
@@ -45,4 +53,15 @@ begin
             we => sprite_we
         );
 
+    vgaController: entity work.vgaController(Behavioral)
+        port map (
+           CLK100MHZ => CLK100MHZ,
+           CPU_RESETN => CPU_RESETN,
+           SW   => SW,
+           VGA_HS => VGA_HS,
+           VGA_VS => VGA_VS,
+           VGA_R => VGA_R,
+           VGA_G => VGA_G,
+           VGA_B => VGA_B
+        );
 end Behavioral;

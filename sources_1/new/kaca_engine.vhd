@@ -1,33 +1,6 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 12/13/2023 01:22:38 PM
--- Design Name: 
--- Module Name: kaca_engine - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+use IEEE.NUMERIC_STD.ALL;
 
 entity kaca_engine is
     generic (
@@ -45,7 +18,7 @@ entity kaca_engine is
 end entity;
 
 architecture Behavioral of kaca_engine is
-    -- todo: samodejno izraÄunaj Å¡tevila bitov iz viÅ¡ine in Å¡irine
+    -- todo: samodejno izraÄ?unaj Å¡tevila bitov iz viÅ¡ine in Å¡irine
     constant width_bits : integer := 6;
     constant height_bits : integer := 5;
     constant word_size : integer := 3;
@@ -97,7 +70,7 @@ begin
             data_write => data_write,
             data_read => data_read
         );
-    -- Skrbi za premikanje kaÄe
+    -- Skrbi za premikanje kaÄ?e
     premakni_kaco : process (CLK100MHZ, state)
     begin
         if rising_edge(CLK100MHZ) then
@@ -106,7 +79,7 @@ begin
                     RAM_we <= '0';
                     game_over <= '1';
                 when CHECK_POS =>
-                    -- izracunaj novi koordinati glave kaÄe
+                    -- izracunaj novi koordinati glave kaÄ?e
                     newx <= 0;
                     newy <= 0;
                     RAM_we <= '0';
@@ -124,16 +97,16 @@ begin
                             newy <= 0;
                     end case;
 
-                    -- preveri koordinate glave kaÄe, Äe bodo Å¡le izven polja
+                    -- preveri koordinate glave kaÄ?e, Ä?e bodo Å¡le izven polja
                     if (newx =- 1 and snake_startx = 0) or (newx = 1 and snake_startx = width - 1) or (newy =- 1 and snake_starty = 0) or (newy = 1 and snake_starty = height - 1) then
                         state <= END_GAME;
                     elsif newx /= 0 or newy /= 0 then
-                        -- izracunaj kooridnate glave kaÄe
+                        -- izracunaj kooridnate glave kaÄ?e
                         newx <= snake_startx + newx;
                         newy <= snake_starty + newy;
 
-                        -- preveri pomnilniÅ¡ko lokacijo, Äe tam obstaja
-                        -- del kaÄe
+                        -- preveri pomnilniÅ¡ko lokacijo, Ä?e tam obstaja
+                        -- del kaÄ?e
 
                         -- podaj naslov
                         addr_readX <= std_logic_vector(newx);
@@ -144,7 +117,7 @@ begin
                         if data_read /= "000" and data_read /= "001" then
                             state <= END_GAME;
                         else
-                            -- Äe je jabolko, poveÄaj rezultat
+                            -- Ä?e je jabolko, poveÄ?aj rezultat
                             if data_read = "001" then
                                 iscore <= iscore + 1;
                             end if;
@@ -162,13 +135,13 @@ begin
                     state <= ZAPISI_NOVO_GLAVO;
 
                 when ZAPISI_NOVO_GLAVO =>
-                    -- zapiÅ¡i novo glavo kaÄe
+                    -- zapiÅ¡i novo glavo kaÄ?e
                     snake_startx <= newx;
                     snake_starty <= newy;
                     data_write <= smer_premika;
                     RAM_we <= '1';
 
-                    -- odstrani rep kaÄe in nastavi nov kazalec na rep
+                    -- odstrani rep kaÄ?e in nastavi nov kazalec na rep
                     addr_readX <= std_logic_vector(snake_endx);
                     addr_readY <= std_logic_vector(snake_endy);
 
@@ -190,7 +163,7 @@ begin
                 when POPRAVI_STARI_REP =>
                     addr_writeX <= std_logic_vector(snake_endx);
                     addr_writeY <= std_logic_vector(snake_endy);
-                    data_write <= "000"; -- poÄisti stari rep
+                    data_write <= "000"; -- poÄ?isti stari rep
                     RAM_we <= '1';
 
                     -- nastavi nov rep
@@ -205,5 +178,5 @@ begin
 end Behavioral;
 
 -- ram data:
--- 1XY kaÄa (00 - desno, 01 - gor, 10 - levo, 11 - dol)
+-- 1XY kaÄ?a (00 - desno, 01 - gor, 10 - levo, 11 - dol)
 -- 001 jabolko
