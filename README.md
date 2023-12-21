@@ -18,15 +18,30 @@ Projekt pri predmetu Digitalno Načrtovanje.
 
 ## Informacije
 
+Smeri:
+
+| A   | B   | smer  |
+| --- | --- | ----- |
+| 0   | 0   | desno |
+| 0   | 1   | gor   |
+| 1   | 0   | levo  |
+| 1   | 1   | dol   |
+
+Moduli
 * `kaca_engine`
   * skrbi za premik kače, hrani podatke o polju in sadežih
   * opis stanja igre:
     * `1AB` @ X, Y - na X, Y je kača s smerjo `AB`
-    * +-+-+--------+
-      |A|B| smer   |
-      +-+-+--------+
-      |0|0| desno  |
-      |0|1| gor    |
-      |1|0| levo   |
-      |1|1| dol    |
-      +-+-+--------+
+
+  * __output__ 
+    * sprites:
+      * 00000 = prazno
+      * 001AB = kača spredaj, glej zgoraj za smer
+      * 010AB = kača zadaj, glej zgoraj za smer
+      * 011AB = kača ovinek:
+        * |_ = desno = 00
+        * _| = gor   = 01
+        * -| = levo  = 10
+        * |- = dol   = 11
+      * 100AB = kača vmes
+      * 11111 = sadež
