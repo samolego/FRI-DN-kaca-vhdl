@@ -38,7 +38,7 @@ Moduli
       * 00000 = prazno
       * 001AB = kača spredaj, glej zgoraj za smer
       * 010AB = kača zadaj, glej zgoraj za smer
-      * 011AB = kača ovinek:
+      * 011AB = kača ovinek: (trenutno še ni implementirano, bolj idejno)
         * |_ = desno = 00
         * _| = gor   = 01
         * -| = levo  = 10

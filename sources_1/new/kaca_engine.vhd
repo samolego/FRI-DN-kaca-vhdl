@@ -110,6 +110,7 @@ begin
                     -- izracunaj novi koordinati glave kače
                     newx <= 0;
                     newy <= 0;
+                    we <= '0';
                     RAM_we <= '0';
                     case smer_premika is
                         when "100" => -- desno
@@ -160,23 +161,31 @@ begin
                     -- podatke damo na data_write
                     data_write <= smer_premika;
                     RAM_we <= '1';
-                    
+
                     -- sporoci za zapis sprite-a
                     x_display <= snake_startx;
                     y_display <= snake_starty;
-                    sprite_ix <= "";
+                    sprite_ix <= "011" & smer_premika(1 downto 0);
                     we <= '1';
-
-
                     state <= ZAPISI_NOVO_GLAVO;
 
                 when ZAPISI_NOVO_GLAVO =>
                     -- zapiši novo glavo kače
                     snake_startx <= newx;
                     snake_starty <= newy;
+                    addr_writeX <= std_logic_vector(snake_startx);
+                    addr_writeY <= std_logic_vector(snake_starty);
                     data_write <= smer_premika;
                     RAM_we <= '1';
 
+                    -- sporoci za zapis sprite-a
+                    x_display <= snake_startx;
+                    y_display <= snake_starty;
+                    sprite_ix <= "001" & smer_premika(1 downto 0);
+                    we <= '1';
+
+                    state <= POPRAVI_STARI_REP;
+                when POPRAVI_STARI_REP =>
                     -- odstrani rep kače in nastavi nov kazalec na rep
                     addr_readX <= std_logic_vector(snake_endx);
                     addr_readY <= std_logic_vector(snake_endy);
@@ -195,12 +204,16 @@ begin
                             newx <= 0;
                             newy <= 0;
                     end case;
-
-                when POPRAVI_STARI_REP =>
                     addr_writeX <= std_logic_vector(snake_endx);
                     addr_writeY <= std_logic_vector(snake_endy);
                     data_write <= "000"; -- počisti stari rep
                     RAM_we <= '1';
+
+                    -- sporoci za zapis sprite-a
+                    x_display <= snake_startx;
+                    y_display <= snake_starty;
+                    sprite_ix <= "00000";
+                    we <= '1';
 
                     -- nastavi nov rep
                     snake_endx <= snake_endx + newx;
