@@ -39,7 +39,7 @@ entity kaca_engine is
         score : out natural;
         x_display : out integer range 0 to width - 1;
         y_display : out integer range 0 to height - 1;
-        sprite_ix : out std_logic_vector (2 downto 0);
+        sprite_ix : out std_logic_vector (4 downto 0);
         we : out std_logic;
         game_over : out std_logic);
 end entity;
@@ -103,6 +103,7 @@ begin
         if rising_edge(CLK100MHZ) then
             case (state) is
                 when END_GAME =>
+                    we <= '0';
                     RAM_we <= '0';
                     game_over <= '1';
                 when CHECK_POS =>
@@ -159,6 +160,14 @@ begin
                     -- podatke damo na data_write
                     data_write <= smer_premika;
                     RAM_we <= '1';
+                    
+                    -- sporoci za zapis sprite-a
+                    x_display <= snake_startx;
+                    y_display <= snake_starty;
+                    sprite_ix <= "";
+                    we <= '1';
+
+
                     state <= ZAPISI_NOVO_GLAVO;
 
                 when ZAPISI_NOVO_GLAVO =>
