@@ -58,7 +58,6 @@ architecture Behavioral of kaca_engine is
     signal newx : integer range -1 to width - 1;
     signal newy : integer range -1 to height - 1;
 
-    signal end_game : std_logic := '0';
     signal iscore : natural := 0;
 
     signal addr_writeY : std_logic_vector (height_bits - 1 downto 0);
@@ -69,9 +68,18 @@ architecture Behavioral of kaca_engine is
     signal data_read : std_logic_vector (word_size - 1 downto 0);
     signal RAM_we : std_logic := '0';
 
+    type game_state is (
+        CHECK_POS, POPRAVI_STARO_GLAVO, ZAPISI_NOVO_GLAVO, POPRAVI_STARI_REP, END_GAME
+    );
+
+    signal state : game_state := CHECK_POS;
+
 begin
+
+    score <= iscore;
+
     -- Stanje igre
-    game_state : entity work.generic_RAM(Behavioral)
+    ram : entity work.generic_RAM(Behavioral)
         generic map(
             width => width,
             height => height,
@@ -90,71 +98,76 @@ begin
             data_read => data_read
         );
     -- Skrbi za premikanje kače
-    premakni_kaco : process (CLK100MHZ)
+    premakni_kaco : process (CLK100MHZ, state)
     begin
-        if rising_edge(CLK100MHZ) and end_game = '0' then
-
-            -- izracunaj novi koordinati glave kače
-            newx <= 0;
-            newy <= 0;
-            RAM_we <= '0';
-            case smer_premika is
-                when "100" => -- desno
-                    newx <= 1;
-                when "101" => -- gor
-                    newy <= - 1;
-                when "110" => -- levo
-                    newx <= - 1;
-                when "111" => -- dol
-                    newy <= 1;
-                when others =>
+        if rising_edge(CLK100MHZ) then
+            case (state) is
+                when END_GAME =>
+                    RAM_we <= '0';
+                    game_over <= '1';
+                when CHECK_POS =>
+                    -- izracunaj novi koordinati glave kače
                     newx <= 0;
                     newy <= 0;
-            end case;
+                    RAM_we <= '0';
+                    case smer_premika is
+                        when "100" => -- desno
+                            newx <= 1;
+                        when "101" => -- gor
+                            newy <= - 1;
+                        when "110" => -- levo
+                            newx <= - 1;
+                        when "111" => -- dol
+                            newy <= 1;
+                        when others =>
+                            newx <= 0;
+                            newy <= 0;
+                    end case;
 
-            -- preveri koordinate glave kače, če bodo šle izven polja
-            if (newx =- 1 and snake_startx = 0) or (newx = 1 and snake_startx = width - 1) or (newy =- 1 and snake_starty = 0) or (newy = 1 and snake_starty = height - 1) then
-                end_game <= '1';
-            elsif newx /= 0 or newy /= 0 then
-                -- izracunaj kooridnate glave kače
-                newx <= snake_startx + newx;
-                newy <= snake_starty + newy;
+                    -- preveri koordinate glave kače, če bodo šle izven polja
+                    if (newx =- 1 and snake_startx = 0) or (newx = 1 and snake_startx = width - 1) or (newy =- 1 and snake_starty = 0) or (newy = 1 and snake_starty = height - 1) then
+                        state <= END_GAME;
+                    elsif newx /= 0 or newy /= 0 then
+                        -- izracunaj kooridnate glave kače
+                        newx <= snake_startx + newx;
+                        newy <= snake_starty + newy;
 
-                -- preveri pomnilniško lokacijo, če tam obstaja
-                -- del kače
+                        -- preveri pomnilniško lokacijo, če tam obstaja
+                        -- del kače
 
-                -- podaj naslov
-                addr_readX <= std_logic_vector(newx);
-                addr_readY <= std_logic_vector(newy);
-                -- podatki pridejo na data_read
+                        -- podaj naslov
+                        addr_readX <= std_logic_vector(newx);
+                        addr_readY <= std_logic_vector(newy);
+                        -- podatki pridejo na data_read
 
-                -- data_read mora biti prazen ali jabolko, sicer je konec
-                if data_read /= "000" and data_read /= "001" then
-                    end_game <= '1';
-                else
-                    -- če je jabolko, povečaj rezultat
-                    if data_read = "001" then
-                        iscore <= iscore + 1;
+                        -- data_read mora biti prazen ali jabolko, sicer je konec
+                        if data_read /= "000" and data_read /= "001" then
+                            state <= END_GAME;
+                        else
+                            -- če je jabolko, povečaj rezultat
+                            if data_read = "001" then
+                                iscore <= iscore + 1;
+                            end if;
+                        end if;
                     end if;
 
+                    state <= POPRAVI_STARO_GLAVO;
+                when POPRAVI_STARO_GLAVO =>
                     -- popravi staro glavo
                     addr_writeX <= std_logic_vector(snake_startx);
                     addr_writeY <= std_logic_vector(snake_starty);
                     -- podatke damo na data_write
                     data_write <= smer_premika;
                     RAM_we <= '1';
+                    state <= ZAPISI_NOVO_GLAVO;
 
-                    -- todo : kako počakati, da zapiše?
-                    -- todo : javi spremembo na output
-
+                when ZAPISI_NOVO_GLAVO =>
                     -- zapiši novo glavo kače
                     snake_startx <= newx;
                     snake_starty <= newy;
                     data_write <= smer_premika;
                     RAM_we <= '1';
 
-                    -- todo : kako počakati, da zapiše?
-                    -- todo : javi spremembo na output
                     -- odstrani rep kače in nastavi nov kazalec na rep
                     addr_readX <= std_logic_vector(snake_endx);
                     addr_readY <= std_logic_vector(snake_endy);
@@ -173,26 +186,21 @@ begin
                             newx <= 0;
                             newy <= 0;
                     end case;
+
+                when POPRAVI_STARI_REP =>
                     addr_writeX <= std_logic_vector(snake_endx);
                     addr_writeY <= std_logic_vector(snake_endy);
                     data_write <= "000"; -- počisti stari rep
                     RAM_we <= '1';
 
-                    -- počakaj da zapiše
-                    -- todo : javi spremembo na output
-
                     -- nastavi nov rep
                     snake_endx <= snake_endx + newx;
                     snake_endy <= snake_endy + newy;
 
-                end if;
-
-            end if;
+                    state <= CHECK_POS;
+            end case;
         end if;
     end process;
-
-    score <= iscore;
-    game_over <= end_game;
 
 end Behavioral;
 
