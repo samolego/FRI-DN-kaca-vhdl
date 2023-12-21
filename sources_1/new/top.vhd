@@ -33,7 +33,7 @@ architecture Behavioral of top is
 
     signal x_display : integer range 0 to SIZE_X - 1 := 0;
     signal y_display : integer range 0 to SIZE_Y - 1 := 0;
-    signal sprite_ix : std_logic_vector(2 downto 0) := "000";
+    signal sprite_ix : std_logic_vector(4 downto 0) := "000";
     signal sprite_we : std_logic := '0';
 begin
 

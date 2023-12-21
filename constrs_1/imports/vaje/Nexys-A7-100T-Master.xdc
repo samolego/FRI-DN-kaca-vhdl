@@ -1,4 +1,3 @@
-##test
 ## This file is a general .xdc for the Nexys A7-100T
 ## To use it in a project:
 ## - uncomment the lines corresponding to used pins

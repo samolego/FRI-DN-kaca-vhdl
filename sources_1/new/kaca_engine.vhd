@@ -12,13 +12,13 @@ entity kaca_engine is
         score : out natural;
         x_display : out integer range 0 to width - 1;
         y_display : out integer range 0 to height - 1;
-        sprite_ix : out std_logic_vector (2 downto 0);
+        sprite_ix : out std_logic_vector (4 downto 0);
         we : out std_logic;
         game_over : out std_logic);
 end entity;
 
 architecture Behavioral of kaca_engine is
-    -- todo: samodejno izraÄ?unaj Å¡tevila bitov iz viÅ¡ine in Å¡irine
+    -- todo: samodejno izraï¿½?unaj Å¡tevila bitov iz viÅ¡ine in Å¡irine
     constant width_bits : integer := 6;
     constant height_bits : integer := 5;
     constant word_size : integer := 3;
@@ -70,18 +70,20 @@ begin
             data_write => data_write,
             data_read => data_read
         );
-    -- Skrbi za premikanje kaÄ?e
+    -- Skrbi za premikanje kaï¿½?e
     premakni_kaco : process (CLK100MHZ, state)
     begin
         if rising_edge(CLK100MHZ) then
             case (state) is
                 when END_GAME =>
+                    we <= '0';
                     RAM_we <= '0';
                     game_over <= '1';
                 when CHECK_POS =>
-                    -- izracunaj novi koordinati glave kaÄ?e
+                    -- izracunaj novi koordinati glave kaï¿½?e
                     newx <= 0;
                     newy <= 0;
+                    we <= '0';
                     RAM_we <= '0';
                     case smer_premika is
                         when "100" => -- desno
@@ -97,16 +99,16 @@ begin
                             newy <= 0;
                     end case;
 
-                    -- preveri koordinate glave kaÄ?e, Ä?e bodo Å¡le izven polja
+                    -- preveri koordinate glave kaï¿½?e, ï¿½?e bodo Å¡le izven polja
                     if (newx =- 1 and snake_startx = 0) or (newx = 1 and snake_startx = width - 1) or (newy =- 1 and snake_starty = 0) or (newy = 1 and snake_starty = height - 1) then
                         state <= END_GAME;
                     elsif newx /= 0 or newy /= 0 then
-                        -- izracunaj kooridnate glave kaÄ?e
+                        -- izracunaj kooridnate glave kaï¿½?e
                         newx <= snake_startx + newx;
                         newy <= snake_starty + newy;
 
-                        -- preveri pomnilniÅ¡ko lokacijo, Ä?e tam obstaja
-                        -- del kaÄ?e
+                        -- preveri pomnilniÅ¡ko lokacijo, ï¿½?e tam obstaja
+                        -- del kaï¿½?e
 
                         -- podaj naslov
                         addr_readX <= std_logic_vector(newx);
@@ -117,7 +119,7 @@ begin
                         if data_read /= "000" and data_read /= "001" then
                             state <= END_GAME;
                         else
-                            -- Ä?e je jabolko, poveÄ?aj rezultat
+                            -- ï¿½?e je jabolko, poveï¿½?aj rezultat
                             if data_read = "001" then
                                 iscore <= iscore + 1;
                             end if;
@@ -132,16 +134,32 @@ begin
                     -- podatke damo na data_write
                     data_write <= smer_premika;
                     RAM_we <= '1';
+
+                    -- sporoci za zapis sprite-a
+                    x_display <= snake_startx;
+                    y_display <= snake_starty;
+                    sprite_ix <= "011" & smer_premika(1 downto 0);
+                    we <= '1';
                     state <= ZAPISI_NOVO_GLAVO;
 
                 when ZAPISI_NOVO_GLAVO =>
-                    -- zapiÅ¡i novo glavo kaÄ?e
+                    -- zapiÅ¡i novo glavo kaï¿½?e
                     snake_startx <= newx;
                     snake_starty <= newy;
+                    addr_writeX <= std_logic_vector(snake_startx);
+                    addr_writeY <= std_logic_vector(snake_starty);
                     data_write <= smer_premika;
                     RAM_we <= '1';
 
-                    -- odstrani rep kaÄ?e in nastavi nov kazalec na rep
+                    -- sporoci za zapis sprite-a
+                    x_display <= snake_startx;
+                    y_display <= snake_starty;
+                    sprite_ix <= "001" & smer_premika(1 downto 0);
+                    we <= '1';
+
+                    state <= POPRAVI_STARI_REP;
+                when POPRAVI_STARI_REP =>
+                    -- odstrani rep kaÄe in nastavi nov kazalec na rep
                     addr_readX <= std_logic_vector(snake_endx);
                     addr_readY <= std_logic_vector(snake_endy);
 
@@ -159,12 +177,16 @@ begin
                             newx <= 0;
                             newy <= 0;
                     end case;
-
-                when POPRAVI_STARI_REP =>
                     addr_writeX <= std_logic_vector(snake_endx);
                     addr_writeY <= std_logic_vector(snake_endy);
-                    data_write <= "000"; -- poÄ?isti stari rep
+                    data_write <= "000"; -- poï¿½?isti stari rep
                     RAM_we <= '1';
+
+                    -- sporoci za zapis sprite-a
+                    x_display <= snake_startx;
+                    y_display <= snake_starty;
+                    sprite_ix <= "00000";
+                    we <= '1';
 
                     -- nastavi nov rep
                     snake_endx <= snake_endx + newx;
@@ -178,5 +200,5 @@ begin
 end Behavioral;
 
 -- ram data:
--- 1XY kaÄ?a (00 - desno, 01 - gor, 10 - levo, 11 - dol)
+-- 1XY kaï¿½?a (00 - desno, 01 - gor, 10 - levo, 11 - dol)
 -- 001 jabolko
