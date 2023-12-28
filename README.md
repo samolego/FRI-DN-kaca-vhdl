@@ -8,7 +8,7 @@ Projekt pri predmetu Digitalno Načrtovanje.
 * giroskop za premikanje levo, desno, gor in dol
     * premikali bi se lahko tudi z gumbi
 * na 7 segmentnem zaslonu bi se izpisovalo število točk (število pojedenih sadežev)
-* verjetno bova uporabila tudi pomnilne komponente vezja, saj bo potrebno "sliko kače" nekam shraniti
+* uporabila bova tudi pomnilne komponente vezja, saj bo potrebno "sliko kače" nekam shraniti
 
 ### Dodatno
 
