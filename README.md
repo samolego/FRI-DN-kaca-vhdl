@@ -20,12 +20,12 @@ Projekt pri predmetu Digitalno Načrtovanje.
 
 Smeri:
 
-| A   | B   | smer  |
-| --- | --- | ----- |
-| 0   | 0   | desno |
-| 0   | 1   | gor   |
-| 1   | 0   | levo  |
-| 1   | 1   | dol   |
+| A   | B   | smer                          |
+| --- | --- | ----------------------------- |
+| 0   | 0   | ![](./assets/00100.png) desno |
+| 0   | 1   | ![](./assets/00101.png) gor   |
+| 1   | 0   | ![](./assets/00110.png) levo  |
+| 1   | 1   | ![](./assets/00111.png) dol   |
 
 Moduli
 * `kaca_engine`
