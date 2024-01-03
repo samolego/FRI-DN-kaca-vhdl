@@ -33,7 +33,7 @@ Moduli
   * opis stanja igre:
     * `1AB` @ X, Y - na X, Y je kača s smerjo `AB`
 
-  * __output__ 
+  * __izhodi__ 
     * sprites:
       * 00000 = prazno
       * 001AB = kača spredaj, glej zgoraj za smer
@@ -45,3 +45,10 @@ Moduli
         * |- = dol   = 11
       * 100AB = kača vmes
       * 11111 = sadež
+* `index2sprite`
+    * preslika index sprite-a v sprite vektor (dolžine 256 (16 * 16)), ki se ga zatem lahko zapiše na zaslon
+    * asinhron
+    * __vhodi__
+        * sprite index = 'id' sprite-a, videni zgoraj
+    * __izhodi__
+        * sprite image bits = vektor 256 bitov (0 = črna, 1 = bela)
