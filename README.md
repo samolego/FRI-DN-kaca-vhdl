@@ -39,10 +39,10 @@ Moduli
       * 001AB = kača spredaj, glej zgoraj za smer
       * 010AB = kača zadaj, glej zgoraj za smer
       * 011AB = kača ovinek: (trenutno še ni implementirano, bolj idejno)
-        * |_ = desno = 00
-        * _| = gor   = 01
-        * -| = levo  = 10
-        * |- = dol   = 11
+        * |_ = 00
+        * _| = 01
+        * -| = 10
+        * |- = 11
       * 100AB = kača vmes
       * 11111 = sadež
 * `index2sprite`
