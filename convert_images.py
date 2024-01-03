@@ -7,6 +7,7 @@ TEMPLATE_FILE = 'sources_1/new/index2sprite.template.vhd'
 OUTPUT_FILE = 'sources_1/new/index2sprite.vhd'
 ASSETS_FOLDER = 'assets/'
 REPLACE_PATTERN = '-- {{ cases }}'
+DARK_THEME = False
 
 def main():
     # Open template file
@@ -26,8 +27,8 @@ def main():
             # Load image
             img = cv2.imread(ASSETS_FOLDER + direction, cv2.IMREAD_GRAYSCALE)
             # Convert to black & white
-            img[img < 128] = 0
-            img[img >= 128] = 1
+            img[img < 128] = 0 if DARK_THEME else 1
+            img[img >= 128] = 1 if DARK_THEME else 0
 
             # Reshape to horizontal vector
             img = img.reshape(1, -1)

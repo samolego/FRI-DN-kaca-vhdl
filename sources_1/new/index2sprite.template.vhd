@@ -7,7 +7,7 @@ entity index2sprite is
         sprite_vector_width : integer -- length of sprite matrix reshaped into vector
     );
     port (
-        sprite_index : in integer;
+        sprite_index : in std_logic_vector (4 downto 0);
         sprite_image_bits : out std_logic_vector (sprite_vector_width - 1 downto 0)
     );
 end entity;
