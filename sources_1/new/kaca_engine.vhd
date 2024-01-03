@@ -18,7 +18,7 @@ entity kaca_engine is
 end entity;
 
 architecture Behavioral of kaca_engine is
-    -- todo: samodejno izra�?unaj števila bitov iz višine in širine
+    -- todo: samodejno izracunaj števila bitov iz višine in širine ?
     constant width_bits : integer := 6;
     constant height_bits : integer := 5;
     constant word_size : integer := 3;
@@ -70,7 +70,8 @@ begin
             data_write => data_write,
             data_read => data_read
         );
-    -- Skrbi za premikanje ka�?e
+
+    -- Skrbi za premikanje kace
     premakni_kaco : process (CLK100MHZ, state)
     begin
         if rising_edge(CLK100MHZ) then
@@ -80,7 +81,7 @@ begin
                     RAM_we <= '0';
                     game_over <= '1';
                 when CHECK_POS =>
-                    -- izracunaj novi koordinati glave ka�?e
+                    -- izracunaj novi koordinati glave kace
                     newx <= 0;
                     newy <= 0;
                     we <= '0';
@@ -99,11 +100,11 @@ begin
                             newy <= 0;
                     end case;
 
-                    -- preveri koordinate glave ka�?e, �?e bodo šle izven polja
+                    -- preveri koordinate glave kace, ce bodo šle izven polja
                     if (newx =- 1 and snake_startx = 0) or (newx = 1 and snake_startx = width - 1) or (newy =- 1 and snake_starty = 0) or (newy = 1 and snake_starty = height - 1) then
                         state <= END_GAME;
                     elsif newx /= 0 or newy /= 0 then
-                        -- izracunaj kooridnate glave ka�?e
+                        -- izracunaj kooridnate glave kace
                         newx <= snake_startx + newx;
                         newy <= snake_starty + newy;
 
@@ -119,7 +120,7 @@ begin
                         if data_read /= "000" and data_read /= "001" then
                             state <= END_GAME;
                         else
-                            -- �?e je jabolko, pove�?aj rezultat
+                            -- ce je jabolko, povecaj rezultat
                             if data_read = "001" then
                                 iscore <= iscore + 1;
                             end if;
@@ -138,12 +139,12 @@ begin
                     -- sporoci za zapis sprite-a
                     x_display <= snake_startx;
                     y_display <= snake_starty;
-                    sprite_ix <= "011" & smer_premika(1 downto 0);
+                    sprite_ix <= "100" & smer_premika(1 downto 0);
                     we <= '1';
                     state <= ZAPISI_NOVO_GLAVO;
 
                 when ZAPISI_NOVO_GLAVO =>
-                    -- zapiši novo glavo ka�?e
+                    -- zapiši novo glavo kace
                     snake_startx <= newx;
                     snake_starty <= newy;
                     addr_writeX <= std_logic_vector(snake_startx);
@@ -179,7 +180,7 @@ begin
                     end case;
                     addr_writeX <= std_logic_vector(snake_endx);
                     addr_writeY <= std_logic_vector(snake_endy);
-                    data_write <= "000"; -- po�?isti stari rep
+                    data_write <= "000"; -- pocisti stari rep
                     RAM_we <= '1';
 
                     -- sporoci za zapis sprite-a
@@ -200,5 +201,5 @@ begin
 end Behavioral;
 
 -- ram data:
--- 1XY ka�?a (00 - desno, 01 - gor, 10 - levo, 11 - dol)
+-- 1XY kača (00 - desno, 01 - gor, 10 - levo, 11 - dol)
 -- 001 jabolko
