@@ -33,8 +33,9 @@ architecture Behavioral of top is
 
     signal x_display : integer range 0 to SIZE_X - 1 := 0;
     signal y_display : integer range 0 to SIZE_Y - 1 := 0;
-    signal sprite_ix : std_logic_vector(4 downto 0) := "000";
+    signal sprite_ix : std_logic_vector(4 downto 0) := "00000";
     signal sprite_we : std_logic := '0';
+    signal sprite_image_vector : std_logic_vector(255 downto 0);
 begin
 
     kaca_engine : entity work.kaca_engine(Behavioral)
@@ -52,6 +53,13 @@ begin
             sprite_ix => sprite_ix,
             we => sprite_we
         );
+    
+    index2sprite : entity work.index2sprite(Behavioral)
+        port map(
+            sprite_index => sprite_ix,
+            sprite_image_bits => sprite_image_vector
+        );
+
 
     vgaController: entity work.vgaController(Behavioral)
         port map (

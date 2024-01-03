@@ -1,6 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
-use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.all;
 
 entity kaca_engine is
     generic (
@@ -27,6 +27,8 @@ architecture Behavioral of kaca_engine is
     signal snake_starty : integer range 0 to height - 1;
     signal snake_endx : integer range 0 to width - 1;
     signal snake_endy : integer range 0 to height - 1;
+
+    signal old_smer_premika : std_logic_vector (1 downto 0);
 
     signal newx : integer range -1 to width - 1;
     signal newy : integer range -1 to height - 1;
@@ -72,7 +74,7 @@ begin
         );
 
     -- Skrbi za premikanje kace
-    premakni_kaco : process (CLK100MHZ, state)
+    premakni_kaco : process (CLK100MHZ, state, smer_premika)
     begin
         if rising_edge(CLK100MHZ) then
             case (state) is
@@ -108,12 +110,12 @@ begin
                         newx <= snake_startx + newx;
                         newy <= snake_starty + newy;
 
-                        -- preveri pomnilniško lokacijo, �?e tam obstaja
-                        -- del ka�?e
+                        -- preveri pomnilniško lokacijo, ce tam obstaja
+                        -- del kace
 
                         -- podaj naslov
-                        addr_readX <= std_logic_vector(newx);
-                        addr_readY <= std_logic_vector(newy);
+                        addr_readX <= std_logic_vector(to_unsigned(newx, width_bits));
+                        addr_readY <= std_logic_vector(to_unsigned(newy, height_bits));
                         -- podatki pridejo na data_read
 
                         -- data_read mora biti prazen ali jabolko, sicer je konec
@@ -130,16 +132,30 @@ begin
                     state <= POPRAVI_STARO_GLAVO;
                 when POPRAVI_STARO_GLAVO =>
                     -- popravi staro glavo
-                    addr_writeX <= std_logic_vector(snake_startx);
-                    addr_writeY <= std_logic_vector(snake_starty);
+                    addr_writeX <= std_logic_vector(to_unsigned(snake_startx, width_bits));
+                    addr_writeY <= std_logic_vector(to_unsigned(snake_starty, height_bits));
                     -- podatke damo na data_write
                     data_write <= smer_premika;
                     RAM_we <= '1';
 
+                    -- todo tukajle se da lepse narediti (da je vsak ovinek drugačen, torej 8 ovinkov ne 4)
                     -- sporoci za zapis sprite-a
                     x_display <= snake_startx;
                     y_display <= snake_starty;
-                    sprite_ix <= "100" & smer_premika(1 downto 0);
+
+                    if old_smer_premika = smer_premika(1 downto 0) then
+                        sprite_ix <= "100" & old_smer_premika; -- spremeni staro glavo v ravno telo
+                    elsif (old_smer_premika = "00" and smer_premika(1 downto 0) = "01") or (old_smer_premika = "11" and smer_premika(1 downto 0) = "10") then
+                        -- desno -> gor ali pa dol -> levo
+                        sprite_ix <= "10101";
+                    elsif (old_smer_premika = "01" and smer_premika(1 downto 0) = "00") or (old_smer_premika = "10" and smer_premika(1 downto 0) = "11") then
+                        -- gor -> desno ali pa levo -> dol
+                        sprite_ix <= "10111";
+                    elsif (old_smer_premika = "00" and smer_premika(1 downto 0) = "11") or (old_smer_premika = "01" and smer_premika(1 downto 0) = "10") then
+                        -- desno -> dol ali pa gor -> levo
+                        sprite_ix <= "10110";
+                    end if;
+
                     we <= '1';
                     state <= ZAPISI_NOVO_GLAVO;
 
@@ -147,8 +163,8 @@ begin
                     -- zapiši novo glavo kace
                     snake_startx <= newx;
                     snake_starty <= newy;
-                    addr_writeX <= std_logic_vector(snake_startx);
-                    addr_writeY <= std_logic_vector(snake_starty);
+                    addr_writeX <= std_logic_vector(to_unsigned(snake_startx, width_bits));
+                    addr_writeY <= std_logic_vector(to_unsigned(snake_starty, height_bits));
                     data_write <= smer_premika;
                     RAM_we <= '1';
 
@@ -161,8 +177,8 @@ begin
                     state <= POPRAVI_STARI_REP;
                 when POPRAVI_STARI_REP =>
                     -- odstrani rep kače in nastavi nov kazalec na rep
-                    addr_readX <= std_logic_vector(snake_endx);
-                    addr_readY <= std_logic_vector(snake_endy);
+                    addr_readX <= std_logic_vector(to_unsigned(snake_endx, width_bits));
+                    addr_readY <= std_logic_vector(to_unsigned(snake_endy, height_bits));
 
                     -- podatki pridejo na data_read
                     case data_read is
@@ -178,8 +194,8 @@ begin
                             newx <= 0;
                             newy <= 0;
                     end case;
-                    addr_writeX <= std_logic_vector(snake_endx);
-                    addr_writeY <= std_logic_vector(snake_endy);
+                    addr_writeX <= std_logic_vector(to_unsigned(snake_endx, width_bits));
+                    addr_writeY <= std_logic_vector(to_unsigned(snake_endy, height_bits));
                     data_write <= "000"; -- pocisti stari rep
                     RAM_we <= '1';
 
@@ -196,6 +212,7 @@ begin
                     state <= CHECK_POS;
             end case;
         end if;
+        old_smer_premika <= smer_premika(1 downto 0);
     end process;
 
 end Behavioral;
