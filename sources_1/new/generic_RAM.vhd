@@ -34,20 +34,6 @@ entity generic_RAM is
     );
 end entity;
 architecture Behavioral of generic_RAM is
-    -- Define the log_ceil function
-    function log_ceil(arg : positive) return natural is
-        variable log_value : natural := 0;
-    begin
-        if arg = 1 then
-            return 0;
-        else
-            log_value := 0;
-            while 2 ** log_value < arg loop
-                log_value := log_value + 1;
-            end loop;
-            return log_value;
-        end if;
-    end function;
     -- Let's declare an array of words (array of pixel rows)
     -- The leftmost bit in a row has the index 0  
     type RAM_vrstice is array(0 to width - 1) of std_logic_vector(word_size - 1 downto 0);

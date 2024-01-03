@@ -51,7 +51,7 @@ begin
             x_display => x_display,
             y_display => y_display,
             sprite_ix => sprite_ix,
-            we => sprite_we
+            display_we => sprite_we
         );
     
     index2sprite : entity work.index2sprite(Behavioral)

@@ -13,7 +13,7 @@ entity kaca_engine is
         x_display : out integer range 0 to width - 1;
         y_display : out integer range 0 to height - 1;
         sprite_ix : out std_logic_vector (4 downto 0);
-        we : out std_logic;
+        display_we : out std_logic;
         game_over : out std_logic);
 end entity;
 
@@ -44,7 +44,7 @@ architecture Behavioral of kaca_engine is
     signal RAM_we : std_logic := '0';
 
     type game_state is (
-        CHECK_POS, POPRAVI_STARO_GLAVO, ZAPISI_NOVO_GLAVO, POPRAVI_STARI_REP, END_GAME
+        CHECK_POS, POPRAVI_STARO_GLAVO, ZAPISI_NOVO_GLAVO, POPRAVI_STARI_REP, ZAPISI_NOVI_REP, END_GAME
     );
 
     signal state : game_state := CHECK_POS;
@@ -79,14 +79,14 @@ begin
         if rising_edge(CLK100MHZ) then
             case (state) is
                 when END_GAME =>
-                    we <= '0';
+                    display_we <= '0';
                     RAM_we <= '0';
                     game_over <= '1';
                 when CHECK_POS =>
                     -- izracunaj novi koordinati glave kace
                     newx <= 0;
                     newy <= 0;
-                    we <= '0';
+                    display_we <= '0';
                     RAM_we <= '0';
                     case smer_premika is
                         when "100" => -- desno
@@ -156,7 +156,7 @@ begin
                         sprite_ix <= "10110";
                     end if;
 
-                    we <= '1';
+                    display_we <= '1';
                     state <= ZAPISI_NOVO_GLAVO;
 
                 when ZAPISI_NOVO_GLAVO =>
@@ -172,7 +172,7 @@ begin
                     x_display <= snake_startx;
                     y_display <= snake_starty;
                     sprite_ix <= "001" & smer_premika(1 downto 0);
-                    we <= '1';
+                    display_we <= '1';
 
                     state <= POPRAVI_STARI_REP;
                 when POPRAVI_STARI_REP =>
@@ -203,11 +203,23 @@ begin
                     x_display <= snake_startx;
                     y_display <= snake_starty;
                     sprite_ix <= "00000";
-                    we <= '1';
+                    display_we <= '1';
 
                     -- nastavi nov rep
                     snake_endx <= snake_endx + newx;
                     snake_endy <= snake_endy + newy;
+
+                    state <= ZAPISI_NOVI_REP;
+
+                when ZAPISI_NOVI_REP =>
+                    -- preberi smer novega repa (trupa)
+                    addr_readX <= std_logic_vector(to_unsigned(snake_endx, width_bits));
+                    addr_readY <= std_logic_vector(to_unsigned(snake_endy, height_bits));
+
+                    -- javi spremembo repa (trup se spremeni v rep)
+                    x_display <= snake_endx;
+                    y_display <= snake_endy;
+                    sprite_ix <= "010" & data_read(1 downto 0);
 
                     state <= CHECK_POS;
             end case;
