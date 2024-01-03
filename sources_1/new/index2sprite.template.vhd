@@ -7,7 +7,6 @@ entity index2sprite is
         sprite_vector_width : integer -- length of sprite matrix reshaped into vector
     );
     port (
-        clk : in std_logic;
         sprite_index : in integer;
         sprite_image_bits : out std_logic_vector (sprite_vector_width - 1 downto 0)
     );
@@ -16,15 +15,8 @@ architecture Behavioral of index2sprite is
 
 begin
 
-    get_image_bits : process (clk)
-    begin
-        if rising_edge(clk) then
-            case sprite_index is
-                    -- {{ whens }}
-                when others =>
-                    sprite_image_bits <= (others => '0');
-            end case;
-        end if;
-    end process;
+    with sprite_index select sprite_image_bits <=
+        -- {{ cases }}
+        (others => '0') when others;
 
 end Behavioral;

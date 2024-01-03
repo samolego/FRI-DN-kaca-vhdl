@@ -6,7 +6,7 @@ import cv2
 TEMPLATE_FILE = 'sources_1/new/index2sprite.template.vhd'
 OUTPUT_FILE = 'sources_1/new/index2sprite.vhd'
 ASSETS_FOLDER = 'assets/'
-REPLACE_PATTERN = '-- {{ whens }}'
+REPLACE_PATTERN = '-- {{ cases }}'
 
 def main():
     # Open template file
@@ -46,9 +46,9 @@ def main():
         replace_pattern_indent = len(replace_pattern_line) - len(replace_pattern_line.lstrip(' '))
 
         for name, sprite in sprites.items():
-            spaces = "\n" + " " * replace_pattern_indent
-            code += spaces + "when \"{}\" =>".format(name)
-            code += spaces + "    sprite_image_bits <= \"{}\";".format(''.join(map(str, sprite[0])))
+            spaces = " " * replace_pattern_indent
+            code += "\n" + spaces + '"{}"'.format(''.join(map(str, sprite[0])))
+            code += ' when "{}",'.format(name)
 
         
         # Replace template with generated code
