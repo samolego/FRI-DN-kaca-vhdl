@@ -1,7 +1,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.NUMERIC_STD.all;
-entity sprite2index is
+
+entity index2sprite is
     generic (
         sprite_vector_width : integer -- length of sprite matrix reshaped into vector
     );
@@ -11,7 +12,7 @@ entity sprite2index is
         sprite_image_bits : out std_logic_vector (sprite_vector_width - 1 downto 0)
     );
 end entity;
-architecture Behavioral of sprite2index is
+architecture Behavioral of index2sprite is
 
 begin
 
@@ -19,7 +20,7 @@ begin
     begin
         if rising_edge(clk) then
             case sprite_index is
-                -- {{ whens }}
+                    -- {{ whens }}
                 when others =>
                     sprite_image_bits <= (others => '0');
             end case;
