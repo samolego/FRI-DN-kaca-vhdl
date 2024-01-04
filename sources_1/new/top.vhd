@@ -65,7 +65,7 @@ begin
         port map (
            CLK100MHZ => CLK100MHZ,
            CPU_RESETN => CPU_RESETN,
-           SW   => SW,
+           data   => sprite_image_vector,
            VGA_HS => VGA_HS,
            VGA_VS => VGA_VS,
            VGA_R => VGA_R,
