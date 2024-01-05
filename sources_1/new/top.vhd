@@ -13,9 +13,9 @@ use IEEE.STD_LOGIC_1164.all;
 entity top is
     port (
         CLK100MHZ : in std_logic;
-        -- signali za VGA
         CPU_RESETN : in STD_LOGIC;
-        SW         : in STD_LOGIC_VECTOR(0 downto 0);
+        -- signali za VGA
+        --SW         : in STD_LOGIC_VECTOR(0 downto 0);
         VGA_HS : out STD_LOGIC;
         VGA_VS : out STD_LOGIC;
         VGA_R  : out STD_LOGIC_VECTOR(3 downto 0);
@@ -25,13 +25,11 @@ entity top is
 end entity;
 
 architecture Behavioral of top is
-    constant SIZE_X : integer := 40;
-    constant SIZE_Y : integer := 30;
-
-    
+    -- kaca_engine signali
+    constant SIZE_X : integer := 40; -- 39 in spodaj brez minusov, da je povsod enako?
+    constant SIZE_Y : integer := 30; -- 29??
     signal score : natural := 0;
     signal game_over : std_logic := '0';
-
     signal x_display : integer range 0 to SIZE_X - 1 := 0;
     signal y_display : integer range 0 to SIZE_Y - 1 := 0;
     signal sprite_ix : std_logic_vector(4 downto 0) := "00000";
@@ -45,10 +43,10 @@ architecture Behavioral of top is
     constant dispRam_height_bits : integer := 9;
     constant dispRam_word_size : integer := 1;
     
-    signal addr_writeY : std_logic_vector (dispRam_height_bits - 1 downto 0); --spremeni ime
-    signal addr_writeX : std_logic_vector (dispRam_width_bits - 1 downto 0);  -- premeni ime
+    signal topAddr_addr_writeY : std_logic_vector (dispRam_height_bits - 1 downto 0); 
+    signal topAddr_addr_writeX : std_logic_vector (dispRam_width_bits - 1 downto 0); 
     signal topAddr_readY : std_logic_vector (dispRam_height_bits - 1 downto 0);
-    signal topAddr_readX : std_logic_vector (dispRam_width_bits - 1 downto 0);
+    signal topAddr_readX : std_logic_vector (dispRam_width_bits - 1 downto 0) := (others => '0'); --na za?etku prebere prvo vrstico
     signal data_write : std_logic_vector (dispRam_word_size - 1 downto 0);
     signal data_read : std_logic_vector (dispRam_word_size - 1 downto 0);
     signal RAM_we : std_logic := '0';
@@ -77,7 +75,9 @@ begin
             sprite_image_bits => sprite_image_vector
         );
     
-    -- ram kije enka zaslonski sliki
+    --manka se modul, ki vpisuje v ram
+    
+    -- ram katerega vsebina je enaka zaslonski sliki
     displayRam : entity work.generic_RAM(Behavioral)
             generic map(
                 width => screen_width,
@@ -89,8 +89,8 @@ begin
             port map(
                 clk => CLK100MHZ,
                 we => RAM_we,
-                addr_writeY => addr_writeY,
-                addr_writeX => addr_writeX,
+                addr_writeY => topAddr_addr_writeY,
+                addr_writeX => topAddr_addr_writeX,
                 addr_readY => topAddr_readY,
                 addr_readX => topAddr_readX,
                 data_write => data_write,
