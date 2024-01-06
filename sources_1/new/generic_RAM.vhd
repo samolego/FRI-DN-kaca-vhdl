@@ -39,9 +39,9 @@ architecture Behavioral of generic_RAM is
     type RAM_vrstice is array(0 to width - 1) of std_logic_vector(word_size - 1 downto 0);
     type RAM_type is array(0 to height - 1) of RAM_vrstice;
 
-    signal RAM : RAM_type;
+    --signal RAM : RAM_type;
     -- If you want to initialize RAM content, use this line instead:
-    --signal RAM : RAM_type := (others => (others => '0'));
+    signal RAM : RAM_type := (others => (others => "1"));
 
 begin
     -- asynchronous reading
