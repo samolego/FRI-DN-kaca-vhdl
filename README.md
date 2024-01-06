@@ -52,3 +52,5 @@ Moduli
         * sprite index = 'id' sprite-a, videni zgoraj
     * __izhodi__
         * sprite image bits = vektor 256 bitov (0 = črna, 1 = bela)
+
+### VPRAŠANJA ZA NEJCA
