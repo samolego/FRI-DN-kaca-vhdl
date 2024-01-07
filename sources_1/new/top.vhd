@@ -53,27 +53,27 @@ architecture Behavioral of top is
      
 begin
 
---    kaca_engine : entity work.kaca_engine(Behavioral)
---        generic map(
---            width => SIZE_X,
---            height => SIZE_Y
---        )
---        port map(
---            smer_premika => "100",
---            CLK100MHZ => CLK100MHZ,
---            score => score,
---            game_over => game_over,
---            x_display => x_display,
---            y_display => y_display,
---            sprite_ix => sprite_ix,
---            display_we => sprite_we
---        );
+    kaca_engine : entity work.kaca_engine(Behavioral)
+        generic map(
+            width => SIZE_X,
+            height => SIZE_Y
+        )
+        port map(
+            smer_premika => "100",
+            CLK100MHZ => CLK100MHZ,
+            score => score,
+            game_over => game_over,
+            x_display => x_display,
+            y_display => y_display,
+            sprite_ix => sprite_ix,
+            display_we => sprite_we
+        );
     
---    index2sprite : entity work.index2sprite(Behavioral)
---        port map(
---            sprite_index => sprite_ix,
---            sprite_image_bits => sprite_image_vector
---        );
+    index2sprite : entity work.index2sprite(Behavioral)
+        port map(
+            sprite_index => sprite_ix,
+            sprite_image_bits => sprite_image_vector
+        );
     
     --manka se modul, ki vpisuje v ram
     
