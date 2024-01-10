@@ -34,7 +34,7 @@ Moduli
     * `1AB` @ X, Y - na X, Y je kača s smerjo `AB`
 
   * __izhodi__ 
-    * sprites:
+    * spriti
       * 00000 = prazno
       * 001AB = kača spredaj, glej zgoraj za smer
       * 010AB = kača zadaj, glej zgoraj za smer
@@ -46,11 +46,21 @@ Moduli
       * 100AB = kača vmes
       * 11111 = sadež
 * `index2sprite`
-    * preslika index sprite-a v sprite vektor (dolžine 256 (16 * 16)), ki se ga zatem lahko zapiše na zaslon
+    * preslika index sprita v sprite vektor (dolžine 256 (16 * 16)), ki se ga zatem lahko zapiše na zaslon
     * asinhron
     * __vhodi__
-        * sprite index = 'id' sprite-a, videni zgoraj
+        * sprite index = 'id' sprita, videni zgoraj
     * __izhodi__
         * sprite image bits = vektor 256 bitov (0 = črna, 1 = bela)
+
+* `framebuffer_RAM2`
+  * skrbi za preslikavo stanja igre v pixle. Podamo mu želene koordinate, vrne pa nam 1-bitni pixel na tem mestu.
+  * podpira vpis spritov: podamo mu koordinate in sprite index - ta bo zapisan na "display"
+  * __vhodi__
+    * sprite index = 'id' sprita, videni zgoraj
+    * X, Y koordinate, kamor se sprite zapiše
+    * X, Y koordinate, kjer želimo prebrati pixel
+  * __izhodi__
+    * 1-bitni pixel na X, Y koordinatah, podanih zgoraj
 
 ### VPRAŠANJA ZA NEJCA
