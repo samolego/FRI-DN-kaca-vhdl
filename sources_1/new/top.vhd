@@ -53,27 +53,27 @@ architecture Behavioral of top is
      
 begin
 
-    kaca_engine : entity work.kaca_engine(Behavioral)
-        generic map(
-            width => SIZE_X,
-            height => SIZE_Y
-        )
-        port map(
-            smer_premika => "100",
-            CLK100MHZ => CLK100MHZ,
-            score => score,
-            game_over => game_over,
-            x_display => x_display,
-            y_display => y_display,
-            sprite_ix => sprite_ix,
-            display_we => sprite_we
-        );
+--    kaca_engine : entity work.kaca_engine(Behavioral)
+--        generic map(
+--            width => SIZE_X,
+--            height => SIZE_Y
+--        )
+--        port map(
+--            smer_premika => "100",
+--            CLK100MHZ => CLK100MHZ,
+--            score => score,
+--            game_over => game_over,
+--            x_display => x_display,
+--            y_display => y_display,
+--            sprite_ix => sprite_ix,
+--            display_we => sprite_we
+--        );
     
-    index2sprite : entity work.index2sprite(Behavioral)
-        port map(
-            sprite_index => sprite_ix,
-            sprite_image_bits => sprite_image_vector
-        );
+--    index2sprite : entity work.index2sprite(Behavioral)
+--        port map(
+--            sprite_index => sprite_ix,
+--            sprite_image_bits => sprite_image_vector
+--        );
     
     --manka se modul, ki vpisuje v ram
     
@@ -82,8 +82,8 @@ begin
             generic map(
             -- +1 zato d je ker sta signala row in cloum v VGA tako definirana, 0 ne pomeni prvo vrstco/stolpec ampak nedefinirano stanje
             -- treba bo popravit offset, ali pa ne brati rama na 0
-                width => screen_width + 1,
-                height => screen_height + 1,
+                width => screen_width,
+                height => screen_height,
                 width_bits => dispRam_width_bits,
                 height_bits => dispRam_height_bits,
                 word_size => dispRam_word_size

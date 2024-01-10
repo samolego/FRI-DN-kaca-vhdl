@@ -1,6 +1,8 @@
 ----------------------------------------------------------------------------------
 -- Krmilnik za VGA, ki bere vrstico po vrstico iz disaplyRama
 -- verzija: 2023-11-15
+
+--! MEJE ZA COUNT SO HARDKODIRANE, ZATO N SPREMINJAJ VELIKOSTI EKRANA!
 ----------------------------------------------------------------------------------
 
 library IEEE;

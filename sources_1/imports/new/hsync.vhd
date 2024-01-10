@@ -3,10 +3,9 @@
 -- Modul za vodoravno sinhronizacijo
 -- Verzija: 2023-11-15
 ----------------------------------------------------------------------------------
-
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.all;
 
 entity hsync is
     Port ( 
@@ -24,7 +23,7 @@ architecture Behavioral of hsync is
 -- DEKLARACIJE KONSTANT
 ------------------------------------------------
 constant T  : integer := 800 * 4; -- perioda signala hsync
-constant SP : integer := 96 * 4;  -- ƒças, da se tuljava izprazni
+constant SP : integer := 96 * 4;  -- ƒ?as, da se tuljava izprazni
 constant FP : integer := 16 * 4;  -- front porch
 constant BP : integer := 48 * 4;  -- back porch
 
@@ -32,7 +31,7 @@ constant BP : integer := 48 * 4;  -- back porch
 -- DEKLARACIJE NOTRANJIH SIGNALOV
 ------------------------------------------------
 -- Register za stevec, mora biti vsaj 12 biten, da lahko steje do 3199.
--- Samo za referenco: mo≈æni naƒçini doloƒçanja zaƒçetne vrednosti
+-- Samo za referenco: mo≈æni naƒ?ini doloƒ?anja zaƒ?etne vrednosti
 --signal count : std_logic_vector(11 downto 0) := "000000000000";    -- binarno
 --signal count : std_logic_vector(11 downto 0) := X"0";              -- ≈°estnajsti≈°ko
 --signal count : std_logic_vector(11 downto 0) := ('0','0','0',...); -- tabela bitov
@@ -50,42 +49,68 @@ begin
 
 ------------------------------------------------
 -- VZPOREDNI STAVKI
--- Za opis odloƒçitvenih vezij 
+-- Za opis odloƒ?itvenih vezij 
 -- prirejanje:  <= 
 -- pogojno prirejanje: when-else, with-select
 ------------------------------------------------
         
     -- primerjalnika za SP in T
     sync_on  <= '1' when count = SP-1 else '0';
-    sync_off <= '1' when count = T-1 else '0';
+    sync_off <= '1' when count = T-2 else '0';
+    --sync_off <= '1' when count = 3135 else '0';
     
-    -- signal za reset
-    reset_cnt <= reset OR sync_off;
+    --mogo?e potrebno reöiti s procesom
     
     -- preslikava stanja pomnilne celice na izhod
     hsync <= q;
     
-    --preslikava clock enable, ki oznaƒçuje konec vrstice
+    --preslikava clock enable, ki oznaƒ?uje konec vrstice
     clock_enable <= sync_off;
     
-    -- Ali smo v obmoƒçju prikaza slike (display area)?
-    -- V tem obmoƒçju lahko pri≈ægemo elektronske topove.
+    --prejsnja (asinhrona) verzija
+    reset_cnt <= '1' when reset = '1' OR sync_off = '1'  else '0'; --OR (count = 3135)
     display_area <= '1' when count >= (SP + BP) AND count < (T - FP) else '0';
+    --column <= (count - SP - BP) / 4 when display_area ='1' else 0;
     
-    -- Na osnovi ≈°tevca urinih period izraƒçunamo indeks stolpca v obmoƒçju prikaza slike (raster 640 x 480)
-    column <= (count - SP - BP) / 4 when display_area ='1' else 0;
+--    process(reset, sync_off, count)
+--    begin
+--    -- signal za reset
+--    -- reset_cnt <= reset =  OR sync_off OR (count = 3133);
+--    if reset = '1' OR sync_off = '1' OR count = 3136 then
+--        reset_cnt <= '1';
+--    else 
+--        reset_cnt <= '0';
+--    end if;
+    
+--    -- Ali smo v obmoƒ?ju prikaza slike (display area)?
+--    -- V tem obmoƒ?ju lahko pri≈ægemo elektronske topove.
+--    if count >= (SP + BP) AND count < (T - FP) then
+--        display_area <= '1';
+--    else
+--        display_area <= '0';
+--    end if;
+    
+--    -- Na osnovi ≈°tevca urinih period izraƒ?unamo indeks stolpca v obmoƒ?ju prikaza slike (raster 640 x 480)
+----    if display_area ='1' then
+----        column <= (count - SP - BP) / 4;
+----    else
+----        column <= 0;
+----    end if;
+    
+--    end process;
     
     counter: process (clock)
     begin
         
         ------------------------------------------------
         -- ZAPOREDNI STAVKI - samo znotraj procesa
-        -- Za opis odloƒçitvenih in sekvenƒçnih vezij 
+        -- Za opis odloƒ?itvenih in sekvenƒ?nih vezij 
         -- prirejanje:  <= 
-        -- prirejanje spremenljivk / zaƒçetnih vrednosti:   :=
+        -- prirejanje spremenljivk / zaƒ?etnih vrednosti:   :=
         -- stavki: if, for, case 
         ------------------------------------------------        
         if rising_edge(clock) then
+      
             -- Sinhron reset, aktivno visok
             if reset_cnt = '1' then
                 count <= 0;
@@ -95,6 +120,13 @@ begin
         -- To je ≈æe implicitno res
         --else 
         --    count <= count; -- ohranjaj stanje
+        
+            if display_area ='1' then
+                column <= (count - SP - BP) / 4;
+            else
+                column <= 0;
+            end if;
+            
         end if;
     end process;
     
