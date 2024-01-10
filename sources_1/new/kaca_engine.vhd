@@ -35,10 +35,10 @@ architecture Behavioral of kaca_engine is
 
     signal iscore : natural := 0;
 
-    signal addr_writeY : std_logic_vector (height_bits - 1 downto 0);
-    signal addr_writeX : std_logic_vector (width_bits - 1 downto 0);
-    signal addr_readY : std_logic_vector (height_bits - 1 downto 0);
-    signal addr_readX : std_logic_vector (width_bits - 1 downto 0);
+    signal addr_writeY : integer range 0 to height - 1;
+    signal addr_writeX : integer range 0 to width - 1;
+    signal addr_readY : integer range 0 to height - 1;
+    signal addr_readX : integer range 0 to width - 1;
     signal data_write : std_logic_vector (word_size - 1 downto 0);
     signal data_read : std_logic_vector (word_size - 1 downto 0);
     signal RAM_we : std_logic := '0';
@@ -58,8 +58,6 @@ begin
         generic map(
             width => width,
             height => height,
-            height_bits => height_bits,
-            width_bits => width_bits,
             word_size => word_size
         )
         port map(
@@ -114,8 +112,8 @@ begin
                         -- del kace
 
                         -- podaj naslov
-                        addr_readX <= std_logic_vector(to_unsigned(newx, width_bits));
-                        addr_readY <= std_logic_vector(to_unsigned(newy, height_bits));
+                        addr_readX <= newx;
+                        addr_readY <= newy;
                         -- podatki pridejo na data_read
 
                         -- data_read mora biti prazen ali jabolko, sicer je konec
@@ -132,8 +130,8 @@ begin
                     state <= POPRAVI_STARO_GLAVO;
                 when POPRAVI_STARO_GLAVO =>
                     -- popravi staro glavo
-                    addr_writeX <= std_logic_vector(to_unsigned(snake_startx, width_bits));
-                    addr_writeY <= std_logic_vector(to_unsigned(snake_starty, height_bits));
+                    addr_writeX <= snake_startx;
+                    addr_writeY <= snake_starty;
                     -- podatke damo na data_write
                     data_write <= smer_premika;
                     RAM_we <= '1';
@@ -163,8 +161,8 @@ begin
                     -- zapiši novo glavo kace
                     snake_startx <= newx;
                     snake_starty <= newy;
-                    addr_writeX <= std_logic_vector(to_unsigned(snake_startx, width_bits));
-                    addr_writeY <= std_logic_vector(to_unsigned(snake_starty, height_bits));
+                    addr_writeX <= snake_startx;
+                    addr_writeY <= snake_starty;
                     data_write <= smer_premika;
                     RAM_we <= '1';
 
@@ -177,8 +175,8 @@ begin
                     state <= POPRAVI_STARI_REP;
                 when POPRAVI_STARI_REP =>
                     -- odstrani rep kače in nastavi nov kazalec na rep
-                    addr_readX <= std_logic_vector(to_unsigned(snake_endx, width_bits));
-                    addr_readY <= std_logic_vector(to_unsigned(snake_endy, height_bits));
+                    addr_readX <= snake_endx;
+                    addr_readY <= snake_endy;
 
                     -- podatki pridejo na data_read
                     case data_read is
@@ -194,8 +192,8 @@ begin
                             newx <= 0;
                             newy <= 0;
                     end case;
-                    addr_writeX <= std_logic_vector(to_unsigned(snake_endx, width_bits));
-                    addr_writeY <= std_logic_vector(to_unsigned(snake_endy, height_bits));
+                    addr_writeX <= snake_endx;
+                    addr_writeY <= snake_endy;
                     data_write <= "000"; -- pocisti stari rep
                     RAM_we <= '1';
 
@@ -213,8 +211,8 @@ begin
 
                 when ZAPISI_NOVI_REP =>
                     -- preberi smer novega repa (trupa)
-                    addr_readX <= std_logic_vector(to_unsigned(snake_endx, width_bits));
-                    addr_readY <= std_logic_vector(to_unsigned(snake_endy, height_bits));
+                    addr_readX <= snake_endx;
+                    addr_readY <= snake_endy;
 
                     -- javi spremembo repa (trup se spremeni v rep)
                     x_display <= snake_endx;

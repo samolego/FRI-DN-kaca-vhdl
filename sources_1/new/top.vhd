@@ -43,8 +43,8 @@ architecture Behavioral of top is
     constant dispRam_height_bits : integer := 9;
     constant dispRam_word_size : integer := 1;
     
-    signal topAddr_readY : std_logic_vector (dispRam_height_bits - 1 downto 0):= (others => '0');
-    signal topAddr_readX : std_logic_vector (dispRam_width_bits - 1 downto 0) := (others => '0'); --na za?etku prebere prvo vrstico
+    signal topAddr_readY : integer range 0 to screen_height - 1 := 0;
+    signal topAddr_readX : integer range 0 to screen_width - 1 := 0; --na za?etku prebere prvo vrstico
     signal top_data_read : std_logic := '0';
      
 begin
@@ -71,17 +71,12 @@ begin
 --            sprite_image_bits => sprite_image_vector
 --        );
     
-    --manka se modul, ki vpisuje v ram
     
     -- ram katerega vsebina je enaka zaslonski sliki
-    displayRam : entity work.framebuffer_RAM(Behavioral)
+    displayRam : entity work.framebuffer_RAM2(Behavioral)
             generic map(
-            -- +1 zato d je ker sta signala row in cloum v VGA tako definirana, 0 ne pomeni prvo vrstco/stolpec ampak nedefinirano stanje
-            -- treba bo popravit offset, ali pa ne brati rama na 0
                 width => screen_width,
-                height => screen_height,
-                width_bits => dispRam_width_bits,
-                height_bits => dispRam_height_bits
+                height => screen_height
             )
             port map(
                 clk => CLK100MHZ,
@@ -90,7 +85,7 @@ begin
                 addr_writeX => y_display,
                 addr_readY => topAddr_readY,
                 addr_readX => topAddr_readX,
-                sprite2write => sprite_image_vector,
+                sprite_idx2write => sprite_ix,
                 data_read => top_data_read
             );
     
@@ -103,7 +98,6 @@ begin
         port map (
            CLK100MHZ => CLK100MHZ,
            CPU_RESETN => CPU_RESETN,
-           --data   => sprite_image_vector,
            VGA_HS => VGA_HS,
            VGA_VS => VGA_VS,
            VGA_R => VGA_R,

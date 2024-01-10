@@ -37,7 +37,7 @@ entity framebuffer_RAM is
 end entity;
 architecture Behavioral of framebuffer_RAM is
 
-    constant sprite_width : integer := 16;
+    constant sprite_size : integer := 16;
 
     -- Let's declare an array of words (array of pixel rows)
     -- The leftmost bit in a row has the index 0  
@@ -57,22 +57,29 @@ begin
                 -- RAM(to_integer(unsigned(addr_writeY)))(to_integer(unsigned(addr_writeX))) <= sprite2write;
 
                 -- write sprite to RAM
-                RAM(addr_writeY + 0)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 0 to sprite_width * 1 - 1);
-                RAM(addr_writeY + 1)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 1 to sprite_width * 2 - 1);
-                RAM(addr_writeY + 2)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 2 to sprite_width * 3 - 1);
-                RAM(addr_writeY + 3)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 3 to sprite_width * 4 - 1);
-                RAM(addr_writeY + 4)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 4 to sprite_width * 5 - 1);
-                RAM(addr_writeY + 5)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 5 to sprite_width * 6 - 1);
-                RAM(addr_writeY + 6)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 6 to sprite_width * 7 - 1);
-                RAM(addr_writeY + 7)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 7 to sprite_width * 8 - 1);
-                RAM(addr_writeY + 8)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 8 to sprite_width * 9 - 1);
-                RAM(addr_writeY + 9)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 9 to sprite_width * 10 - 1);
-                RAM(addr_writeY + 10)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 10 to sprite_width * 11 - 1);
-                RAM(addr_writeY + 11)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 11 to sprite_width * 12 - 1);
-                RAM(addr_writeY + 12)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 12 to sprite_width * 13 - 1);
-                RAM(addr_writeY + 13)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 13 to sprite_width * 14 - 1);
-                RAM(addr_writeY + 14)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 14 to sprite_width * 15 - 1);
-                RAM(addr_writeY + 15)(addr_writeX to addr_writeX + sprite_width - 1) <= sprite2write(sprite_width * 15 to sprite_width * 16 - 1);
+
+                for y in 0 to sprite_size - 1 loop
+                    for x in 0 to sprite_size - 1 loop
+                        RAM(addr_writeY + y)(addr_writeX + x) <= sprite2write(sprite_size * y + x);
+                    end loop;
+                end loop;
+
+            --     RAM(addr_writeY + 0)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 0 to sprite_size * 1 - 1);
+            --     RAM(addr_writeY + 1)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 1 to sprite_size * 2 - 1);
+            --     RAM(addr_writeY + 2)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 2 to sprite_size * 3 - 1);
+            --     RAM(addr_writeY + 3)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 3 to sprite_size * 4 - 1);
+            --     RAM(addr_writeY + 4)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 4 to sprite_size * 5 - 1);
+            --     RAM(addr_writeY + 5)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 5 to sprite_size * 6 - 1);
+            --     RAM(addr_writeY + 6)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 6 to sprite_size * 7 - 1);
+            --     RAM(addr_writeY + 7)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 7 to sprite_size * 8 - 1);
+            --     RAM(addr_writeY + 8)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 8 to sprite_size * 9 - 1);
+            --     RAM(addr_writeY + 9)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 9 to sprite_size * 10 - 1);
+            --     RAM(addr_writeY + 10)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 10 to sprite_size * 11 - 1);
+            --     RAM(addr_writeY + 11)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 11 to sprite_size * 12 - 1);
+            --     RAM(addr_writeY + 12)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 12 to sprite_size * 13 - 1);
+            --     RAM(addr_writeY + 13)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 13 to sprite_size * 14 - 1);
+            --     RAM(addr_writeY + 14)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 14 to sprite_size * 15 - 1);
+            --     RAM(addr_writeY + 15)(addr_writeX to addr_writeX + sprite_size - 1) <= sprite2write(sprite_size * 15 to sprite_size * 16 - 1);
             end if;
         end if;
     end process;

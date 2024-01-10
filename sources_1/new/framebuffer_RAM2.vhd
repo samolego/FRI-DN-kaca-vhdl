@@ -14,46 +14,58 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.NUMERIC_STD.all;
-entity generic_RAM is
+
+entity framebuffer_RAM2 is
     generic (
         height : integer; -- number of rows
-        width : integer; -- number of columns
-        word_size : integer := 8 -- number of bits in a word
+        width : integer -- number of columns
     );
     port (
         clk : in std_logic;
         we : in std_logic;
-        -- writing
+        -- pisanje - zapisemo celoten 16x16 sprite (reshaped v 256-bitni vektor)
         addr_writeY : in integer range 0 to height - 1;
         addr_writeX : in integer range 0 to width - 1;
-        data_write : in std_logic_vector (word_size - 1 downto 0);
-        -- reading
+        sprite_idx2write : in std_logic_vector (4 downto 0);
+        -- branje
         addr_readY : in integer range 0 to height - 1;
         addr_readX : in integer range 0 to width - 1;
-        data_read : out std_logic_vector (word_size - 1 downto 0)
+        data_read : out std_logic
     );
 end entity;
-architecture Behavioral of generic_RAM is
-    -- Let's declare an array of words (array of pixel rows)
-    -- The leftmost bit in a row has the index 0  
-    type RAM_vrstice is array(0 to width - 1) of std_logic_vector(word_size - 1 downto 0);
-    type RAM_type is array(0 to height - 1) of RAM_vrstice;
+architecture Behavioral of framebuffer_RAM2 is
 
-    signal RAM : RAM_type;
-    -- If you want to initialize RAM content, use this line instead:
---    signal RAM : RAM_type := (others => (others => "1"));
+    constant sprite_size : integer := 16;
+
+    signal read_sprite_idx : std_logic_vector (4 downto 0);
+    signal sprite_image_vector : std_logic_vector (255 downto 0);
+
 
 begin
-    -- asynchronous reading
-    data_read <= RAM(addr_readY)(addr_readX);
 
-    -- synchronous writing
-    SYNC_PROC : process (clk)
-    begin
-        if rising_edge(clk) then
-            if we = '1' then
-                RAM(addr_writeY)(addr_writeX) <= data_write;
-            end if;
-        end if;
-    end process;
+    data_read <= sprite_image_vector((addr_readY mod sprite_size) * sprite_size + addr_readX mod sprite_size);
+
+    index2sprite : entity work.index2sprite(Behavioral)
+        port map(
+            sprite_index => read_sprite_idx,
+            sprite_image_bits => sprite_image_vector
+        );
+    
+
+    ram : entity work.generic_RAM(Behavioral)
+        generic map(
+            width => width,
+            height => height,
+            word_size => 5
+        )
+        port map(
+            clk => clk,
+            we => we,
+            addr_writeY => addr_writeY,
+            addr_writeX => addr_writeX,
+            addr_readY => addr_readY / sprite_size,
+            addr_readX => addr_readX / sprite_size,
+            data_write => sprite_idx2write,
+            data_read => read_sprite_idx
+        );
 end Behavioral;
