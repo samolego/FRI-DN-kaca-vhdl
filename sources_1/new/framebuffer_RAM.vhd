@@ -20,18 +20,19 @@ entity framebuffer_RAM is
         height : integer; -- number of rows
         width : integer; -- number of columns
         height_bits : integer; -- number of bits for the height
-        width_bits : integer; -- number of bits for the width
-        word_size : integer := 8 -- number of bits in a word
+        width_bits : integer -- number of bits for the width
     );
     port (
         clk : in std_logic;
         we : in std_logic;
+        -- pisanje - zapisemo celoten 16x16 sprite (reshaped v 256-bitni vektor)
         addr_writeY : in std_logic_vector (height_bits - 1 downto 0);
         addr_writeX : in std_logic_vector (width_bits - 1 downto 0);
         sprite2write : in std_logic_vector (256 - 1 downto 0);
+        -- branje
         addr_readY : in std_logic_vector (height_bits - 1 downto 0);
         addr_readX : in std_logic_vector (width_bits - 1 downto 0);
-        data_read : out std_logic_vector (word_size - 1 downto 0)
+        data_read : out std_logic
     );
 end entity;
 architecture Behavioral of framebuffer_RAM is
@@ -40,7 +41,7 @@ architecture Behavioral of framebuffer_RAM is
 
     -- Let's declare an array of words (array of pixel rows)
     -- The leftmost bit in a row has the index 0  
-    type RAM_vrstice is array(0 to width - 1) of std_logic_vector(word_size - 1 downto 0);
+    type RAM_vrstice is array(0 to width - 1) of std_logic;
     type RAM_type is array(0 to height - 1) of RAM_vrstice;
 
     signal RAM : RAM_type;
@@ -63,23 +64,9 @@ begin
                 x_write <= to_integer(unsigned(addr_writeX));
                 y_write <= to_integer(unsigned(addr_writeY));
 
-                -- Write sprite to RAM
-                RAM(y_write + 0)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 0 to sprite_width * 1 - 1);
-                RAM(y_write + 1)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 1 to sprite_width * 2 - 1);
-                RAM(y_write + 2)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 2 to sprite_width * 3 - 1);
-                RAM(y_write + 3)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 3 to sprite_width * 4 - 1);
-                RAM(y_write + 4)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 4 to sprite_width * 5 - 1);
-                RAM(y_write + 5)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 5 to sprite_width * 6 - 1);
-                RAM(y_write + 6)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 6 to sprite_width * 7 - 1);
-                RAM(y_write + 7)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 7 to sprite_width * 8 - 1);
-                RAM(y_write + 8)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 8 to sprite_width * 9 - 1);
-                RAM(y_write + 9)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 9 to sprite_width * 10 - 1);
-                RAM(y_write + 10)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 10 to sprite_width * 11 - 1);
-                RAM(y_write + 11)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 11 to sprite_width * 12 - 1);
-                RAM(y_write + 12)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 12 to sprite_width * 13 - 1);
-                RAM(y_write + 13)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 13 to sprite_width * 14 - 1);
-                RAM(y_write + 14)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 14 to sprite_width * 15 - 1);
-                RAM(y_write + 15)(x_write to x_write + sprite_width) <= sprite2write(sprite_width * 15 to sprite_width * 16 - 1);
+                for i in 0 to 255 loop
+                    RAM(y_write + i / 16)(x_write + i mod 16) <= sprite2write(i);
+                end loop;
             end if;
         end if;
     end process;

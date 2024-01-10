@@ -47,7 +47,6 @@ architecture Behavioral of top is
     signal topAddr_addr_writeX : std_logic_vector (dispRam_width_bits - 1 downto 0); 
     signal topAddr_readY : std_logic_vector (dispRam_height_bits - 1 downto 0):= (others => '0');
     signal topAddr_readX : std_logic_vector (dispRam_width_bits - 1 downto 0) := (others => '0'); --na za?etku prebere prvo vrstico
-    signal data_write : std_logic_vector (dispRam_word_size - 1 downto 0);
     signal top_data_read : std_logic_vector (dispRam_word_size - 1 downto 0);
     signal RAM_we : std_logic := '0';
      
@@ -78,15 +77,14 @@ begin
     --manka se modul, ki vpisuje v ram
     
     -- ram katerega vsebina je enaka zaslonski sliki
-    displayRam : entity work.generic_RAM(Behavioral)
+    displayRam : entity work.framebuffer_RAM(Behavioral)
             generic map(
             -- +1 zato d je ker sta signala row in cloum v VGA tako definirana, 0 ne pomeni prvo vrstco/stolpec ampak nedefinirano stanje
             -- treba bo popravit offset, ali pa ne brati rama na 0
                 width => screen_width + 1,
                 height => screen_height + 1,
                 width_bits => dispRam_width_bits,
-                height_bits => dispRam_height_bits,
-                word_size => dispRam_word_size
+                height_bits => dispRam_height_bits
             )
             port map(
                 clk => CLK100MHZ,
@@ -95,7 +93,7 @@ begin
                 addr_writeX => topAddr_addr_writeX,
                 addr_readY => topAddr_readY,
                 addr_readX => topAddr_readX,
-                data_write => data_write,
+                sprite2write => sprite_image_vector,
                 data_read => top_data_read
             );
     
