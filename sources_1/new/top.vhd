@@ -34,7 +34,7 @@ architecture Behavioral of top is
     signal y_display : integer range 0 to SIZE_Y - 1 := 0;
     signal sprite_ix : std_logic_vector(4 downto 0) := "00000";
     signal sprite_we : std_logic := '0';
-    signal sprite_image_vector : std_logic_vector(255 downto 0);
+    signal sprite_image_vector : std_logic_vector(0 to 255);
     
     --signali za display ram
     constant screen_width : integer := 640;

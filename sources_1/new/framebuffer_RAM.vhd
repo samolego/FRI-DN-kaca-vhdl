@@ -28,7 +28,7 @@ entity framebuffer_RAM is
         -- pisanje - zapisemo celoten 16x16 sprite (reshaped v 256-bitni vektor)
         addr_writeY : in integer range 0 to height - 1;
         addr_writeX : in integer range 0 to width - 1;
-        sprite2write : in std_logic_vector (256 - 1 downto 0);
+        sprite2write : in std_logic_vector (0 to 255);
         -- branje
         addr_readY : in std_logic_vector (height_bits - 1 downto 0);
         addr_readX : in std_logic_vector (width_bits - 1 downto 0);
