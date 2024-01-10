@@ -40,6 +40,11 @@ architecture Behavioral of framebuffer_RAM2 is
     signal read_sprite_idx : std_logic_vector (4 downto 0);
     signal sprite_image_vector : std_logic_vector (255 downto 0);
 
+    signal scaled_write_x : integer range 0 to width / sprite_size - 1;
+    signal scaled_write_y : integer range 0 to height / sprite_size - 1;
+    signal scaled_read_x : integer range 0 to width / sprite_size - 1;
+    signal scaled_read_y : integer range 0 to height / sprite_size - 1;
+
 
 begin
 
@@ -52,19 +57,25 @@ begin
         );
     
 
+    scaled_read_x <= addr_readX / sprite_size;
+    scaled_read_y <= addr_readY / sprite_size;
+    scaled_write_x <= addr_writeX / sprite_size;
+    scaled_write_y <= addr_writeY / sprite_size;
+
     ram : entity work.generic_RAM(Behavioral)
         generic map(
             width => width,
             height => height,
-            word_size => 5
+            word_size => 5,
+            default_value => "1"
         )
         port map(
             clk => clk,
             we => we,
-            addr_writeY => addr_writeY,
-            addr_writeX => addr_writeX,
-            addr_readY => addr_readY / sprite_size,
-            addr_readX => addr_readX / sprite_size,
+            addr_writeY => scaled_write_y,
+            addr_writeX => scaled_write_x,
+            addr_readY => scaled_read_y,
+            addr_readX => scaled_read_x,
             data_write => sprite_idx2write,
             data_read => read_sprite_idx
         );
