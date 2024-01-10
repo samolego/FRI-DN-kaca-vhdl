@@ -26,8 +26,8 @@ entity framebuffer_RAM is
         clk : in std_logic;
         we : in std_logic;
         -- pisanje - zapisemo celoten 16x16 sprite (reshaped v 256-bitni vektor)
-        addr_writeY : in std_logic_vector (height_bits - 1 downto 0);
-        addr_writeX : in std_logic_vector (width_bits - 1 downto 0);
+        addr_writeY : in integer range 0 to height - 1;
+        addr_writeX : in integer range 0 to width - 1;
         sprite2write : in std_logic_vector (256 - 1 downto 0);
         -- branje
         addr_readY : in std_logic_vector (height_bits - 1 downto 0);
@@ -46,9 +46,6 @@ architecture Behavioral of framebuffer_RAM is
 
     signal RAM : RAM_type;
 
-    signal x_write: integer range 0 to width - 1;
-    signal y_write: integer range 0 to height - 1;
-
 begin
     -- asynchronous reading
     data_read <= RAM(to_integer(unsigned(addr_readY)))(to_integer(unsigned(addr_readX)));
@@ -61,11 +58,8 @@ begin
                 -- RAM(to_integer(unsigned(addr_writeY)))(to_integer(unsigned(addr_writeX))) <= sprite2write;
 
                 -- write sprite to RAM
-                x_write <= to_integer(unsigned(addr_writeX));
-                y_write <= to_integer(unsigned(addr_writeY));
-
                 for i in 0 to 255 loop
-                    RAM(y_write + i / 16)(x_write + i mod 16) <= sprite2write(i);
+                    RAM(addr_writeY + i / sprite_width)(addr_writeX + i mod sprite_width) <= sprite2write(i);
                 end loop;
             end if;
         end if;

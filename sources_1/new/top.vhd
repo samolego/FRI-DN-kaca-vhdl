@@ -78,16 +78,16 @@ begin
             generic map(
             -- +1 zato d je ker sta signala row in cloum v VGA tako definirana, 0 ne pomeni prvo vrstco/stolpec ampak nedefinirano stanje
             -- treba bo popravit offset, ali pa ne brati rama na 0
-                width => screen_width + 1,
-                height => screen_height + 1,
+                width => screen_width,
+                height => screen_height,
                 width_bits => dispRam_width_bits,
                 height_bits => dispRam_height_bits
             )
             port map(
                 clk => CLK100MHZ,
                 we => sprite_we,
-                addr_writeY => std_logic_vector(x_display),
-                addr_writeX => std_logic_vector(y_display),
+                addr_writeY => x_display,
+                addr_writeX => y_display,
                 addr_readY => topAddr_readY,
                 addr_readX => topAddr_readX,
                 sprite2write => sprite_image_vector,

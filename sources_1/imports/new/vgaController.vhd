@@ -86,7 +86,7 @@ begin
     ram_addr_readY <= std_logic_vector(to_unsigned(vga_row, ram_addr_readY'length));
     ram_addr_readX <= std_logic_vector(to_unsigned(vga_column, ram_addr_readX'length));
     
-    process (display_area, ram_addr_readX)
+    process (display_area, ram_addr_readX, data_read)
     begin
          if display_area='1' then
                 bitValue <= data_read;
