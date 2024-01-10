@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- Projekt: Krmilnik za VGA
--- Modul za navpično sinhronizacijo
+-- Modul za navpi�?no sinhronizacijo
 -- Verzija: 2023-11-15
 ----------------------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ entity vsync is
         reset : in  STD_LOGIC;
         clock_enable : in STD_LOGIC;
         display_area : inout STD_LOGIC;
-        row          : out natural range 0 to 479;
+        row          : out integer range 0 to 479;
         vsync : out STD_LOGIC);
 end entity;
 
@@ -29,7 +29,7 @@ architecture Behavioral of vsync is
 -- DEKLARACIJE KONSTANT
 ------------------------------------------------
 constant T  : integer := 521; -- število vrstic skupaj
-constant SP : integer := 2;  -- čas, da se tuljava izprazni
+constant SP : integer := 2;  -- �?as, da se tuljava izprazni
 constant FP : integer := 10;  -- front porch
 constant BP : integer := 29;  -- back porch
 
@@ -41,6 +41,7 @@ signal sync_on : std_logic := '0';
 signal sync_off : std_logic := '0';
 signal reset_cnt : std_logic := '0';
 signal q : std_logic := '0';
+signal testRow : integer range 0 to 485;
 
 begin
         
@@ -54,24 +55,33 @@ begin
     -- preslikava stanja pomnilne celice na izhod
     vsync <= q;
     
-    -- Ali smo v območju prikaza slike (display area)?
-    -- V tem območju lahko prižgemo elektronske topove.
+    -- Ali smo v obmo�?ju prikaza slike (display area)?
+    -- V tem obmo�?ju lahko prižgemo elektronske topove.
     display_area <= '1' when count >= (SP + BP) AND count < (T - FP) else '0';
     
-    -- Na osnovi števca vrstic izračunamo indeks vrstice v območju prikaza slike (raster 640 x 480)
-    row <= (count - SP - BP) when display_area ='1' else 0;
-       
+    testRow <= (count - SP - BP) when display_area ='1' else 0;
+    -- testRow in row signla sta enaka tole je le varovalka
+    row <= testRow when testRow >= 0 AND testRow <= 479 else 0;
+    
     counter: process (clock)
     begin      
-        if rising_edge(clock) then
-            -- Sinhron reset, aktivno visok
-            if reset_cnt = '1' then
-                count <= 0;
+    if rising_edge(clock) then
+        -- Sinhron reset, aktivno visok
+        if reset_cnt = '1' then
+            count <= 0;
             else
-                if clock_enable = '1' then
-                    count <= count + 1; -- prištej eno vrstico
-                end if;
+            if clock_enable = '1' then
+                count <= count + 1; -- prištej eno vrstico
             end if;
+        end if;
+                
+            -- Na osnovi števca vrstic izra�?unamo indeks vrstice v obmo�?ju prikaza slike (raster 640 x 480)
+--            if display_area = '1' then
+--                row <= (count - SP - BP);
+--            else 
+--                row <= 0;
+--            end if;
+            
         end if;
     end process;
     

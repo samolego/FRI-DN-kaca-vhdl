@@ -24,8 +24,8 @@ entity vgaController is
            VGA_G  : out STD_LOGIC_VECTOR(3 downto 0);
            VGA_B  : out STD_LOGIC_VECTOR(3 downto 0);
            --dodajanje rama
-           ram_addr_readY : inout std_logic_vector (dispRam_height_bits - 1 downto 0);
-           ram_addr_readX : inout std_logic_vector (dispRam_width_bits - 1 downto 0);
+           ram_addr_readY : inout integer range 0 to 479; --(dispRam_height_bits - 1 downto 0);
+           ram_addr_readX : inout integer range 0 to 639; --(dispRam_width_bits - 1 downto 0);
            data_read : in std_logic
            );
 end vgaController;
@@ -37,8 +37,8 @@ signal rst : std_logic;
 signal display_area_h : std_logic;
 signal display_area_v : std_logic;
 signal display_area   : std_logic;
-signal vga_column : natural range 0 to 639;
-signal vga_row    : natural range 0 to 479;
+signal vga_column : integer range 0 to 639;
+signal vga_row    : integer range 0 to 479;
 
 --tabela, ki steje katero vrstico sprita na data bomo izrisali
 --type twoDimArray is array (natural range <>, natural range <>) of natural range 0 to 15;
@@ -85,8 +85,10 @@ begin
     display_area <= display_area_h AND display_area_v;
     
     --signali za branje iz rama
-    ram_addr_readY <= std_logic_vector(to_unsigned(vga_row, ram_addr_readY'length));
-    ram_addr_readX <= std_logic_vector(to_unsigned(vga_column, ram_addr_readX'length));
+    --ram_addr_readY <= std_logic_vector(to_unsigned(vga_row, ram_addr_readY'length));
+    --ram_addr_readX <= std_logic_vector(to_unsigned(vga_column, ram_addr_readX'length));
+    ram_addr_readY <= vga_row; 
+    ram_addr_readX <= vga_column; 
     
     process (display_area, ram_addr_readX, data_read)
     begin
