@@ -24,7 +24,7 @@ entity vgaController is
            --dodajanje rama
            ram_addr_readY : inout std_logic_vector (dispRam_height_bits - 1 downto 0);
            ram_addr_readX : inout std_logic_vector (dispRam_width_bits - 1 downto 0);
-           data_read : in std_logic_vector (dispRam_word_size - 1 downto 0)
+           data_read : in std_logic
            );
 end vgaController;
 
@@ -51,7 +51,7 @@ signal vga_row    : natural range 0 to 479;
 --signal getNewData: std_logic := '1';
 --signal presc : natural range 0 to 4 := 0;
 --signal bitInRowCount : natural range 0 to 15;
-signal bitValue: std_logic_vector(dispRam_word_size - 1 downto 0);
+signal bitValue: std_logic;
 signal bitVector: std_logic_vector(3 downto 0) := "0000";
 
     
@@ -90,19 +90,19 @@ begin
     begin
          if display_area='1' then
                 bitValue <= data_read;
-                bitVector <= (others => bitValue(0));
+                bitVector <= (others => bitValue);
                 VGA_R <= bitVector;
                 VGA_G <= bitVector;
                 VGA_B <= bitVector;
           end if;
     end process;
---            -- v rowToDisplay zapišemo novo vrstico
+--            -- v rowToDisplay zapiï¿½emo novo vrstico
 --            if getNewData = '1' then
 --                  getNewData <= '0';
                   
 --                  --trenutna vrednost podaktov v ramu na vrstici counterja
 --                  rowToDisplay <= data_read;
---                  --pove?aj counter, ram bo ta?as že posodobil signal data_read, ki ga bomo ob naslednjem vhodu v zanko prepisali
+--                  --pove?aj counter, ram bo ta?as ï¿½e posodobil signal data_read, ki ga bomo ob naslednjem vhodu v zanko prepisali
 --                  ram_addr_readX <= std_logic_vector(unsigned(ram_addr_readX) + 1);
                   
 ----                  rowIndex <= row_counters(sprite_addr_row, sprite_addr_col);
@@ -150,13 +150,13 @@ begin
 --            --nsignala sta ustvarjena na novo, zato da bo pri upscejlanju manj dela in da se umes ne resetirata na 0 kot se signala row in colum
 --            -- OPOMBA 2 za delovanje tega programa je potrebno implementirati read_data_row v generic Ram modulu
 --         if display_area='1' then
---            -- v rowToDisplay zapišemo novo vrstico
+--            -- v rowToDisplay zapiï¿½emo novo vrstico
 --            if getNewData = '1' then
 --                  getNewData <= '0';
                   
 --                  --trenutna vrednost podaktov v ramu na vrstici counterja
 --                  rowToDisplay <= data_read;
---                  --pove?aj counter, ram bo ta?as že posodobil signal data_read, ki ga bomo ob naslednjem vhodu v zanko prepisali
+--                  --pove?aj counter, ram bo ta?as ï¿½e posodobil signal data_read, ki ga bomo ob naslednjem vhodu v zanko prepisali
 --                  ram_addr_readX <= std_logic_vector(unsigned(ram_addr_readX) + 1);
                   
 ----                  rowIndex <= row_counters(sprite_addr_row, sprite_addr_col);

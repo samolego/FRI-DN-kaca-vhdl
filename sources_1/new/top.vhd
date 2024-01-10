@@ -43,12 +43,9 @@ architecture Behavioral of top is
     constant dispRam_height_bits : integer := 9;
     constant dispRam_word_size : integer := 1;
     
-    signal topAddr_addr_writeY : std_logic_vector (dispRam_height_bits - 1 downto 0); 
-    signal topAddr_addr_writeX : std_logic_vector (dispRam_width_bits - 1 downto 0); 
     signal topAddr_readY : std_logic_vector (dispRam_height_bits - 1 downto 0):= (others => '0');
     signal topAddr_readX : std_logic_vector (dispRam_width_bits - 1 downto 0) := (others => '0'); --na za?etku prebere prvo vrstico
-    signal top_data_read : std_logic_vector (dispRam_word_size - 1 downto 0);
-    signal RAM_we : std_logic := '0';
+    signal top_data_read : std_logic := '0';
      
 begin
 
@@ -88,9 +85,9 @@ begin
             )
             port map(
                 clk => CLK100MHZ,
-                we => RAM_we,
-                addr_writeY => topAddr_addr_writeY,
-                addr_writeX => topAddr_addr_writeX,
+                we => sprite_we,
+                addr_writeY => std_logic_vector(x_display),
+                addr_writeX => std_logic_vector(y_display),
                 addr_readY => topAddr_readY,
                 addr_readX => topAddr_readX,
                 sprite2write => sprite_image_vector,
