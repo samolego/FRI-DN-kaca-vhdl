@@ -34,7 +34,7 @@ architecture Behavioral of top is
     signal y_display : integer range 0 to SIZE_Y - 1 := 0;
     signal sprite_ix : std_logic_vector(4 downto 0) := "00000";
     signal sprite_we : std_logic := '0';
-    signal sprite_image_vector : std_logic_vector(255 downto 0);
+    signal sprite_image_vector : std_logic_vector(0 to 255);
     
     --signali za display ram
     constant screen_width : integer := 640;
@@ -43,13 +43,9 @@ architecture Behavioral of top is
     constant dispRam_height_bits : integer := 9;
     constant dispRam_word_size : integer := 1;
     
-    signal topAddr_addr_writeY : std_logic_vector (dispRam_height_bits - 1 downto 0); 
-    signal topAddr_addr_writeX : std_logic_vector (dispRam_width_bits - 1 downto 0); 
     signal topAddr_readY : std_logic_vector (dispRam_height_bits - 1 downto 0):= (others => '0');
     signal topAddr_readX : std_logic_vector (dispRam_width_bits - 1 downto 0) := (others => '0'); --na za?etku prebere prvo vrstico
-    signal data_write : std_logic_vector (dispRam_word_size - 1 downto 0);
-    signal top_data_read : std_logic_vector (dispRam_word_size - 1 downto 0);
-    signal RAM_we : std_logic := '0';
+    signal top_data_read : std_logic := '0';
      
 begin
 
@@ -78,24 +74,23 @@ begin
     --manka se modul, ki vpisuje v ram
     
     -- ram katerega vsebina je enaka zaslonski sliki
-    displayRam : entity work.generic_RAM(Behavioral)
+    displayRam : entity work.framebuffer_RAM(Behavioral)
             generic map(
             -- +1 zato d je ker sta signala row in cloum v VGA tako definirana, 0 ne pomeni prvo vrstco/stolpec ampak nedefinirano stanje
             -- treba bo popravit offset, ali pa ne brati rama na 0
                 width => screen_width,
                 height => screen_height,
                 width_bits => dispRam_width_bits,
-                height_bits => dispRam_height_bits,
-                word_size => dispRam_word_size
+                height_bits => dispRam_height_bits
             )
             port map(
                 clk => CLK100MHZ,
-                we => RAM_we,
-                addr_writeY => topAddr_addr_writeY,
-                addr_writeX => topAddr_addr_writeX,
+                we => sprite_we,
+                addr_writeY => x_display,
+                addr_writeX => y_display,
                 addr_readY => topAddr_readY,
                 addr_readX => topAddr_readX,
-                data_write => data_write,
+                sprite2write => sprite_image_vector,
                 data_read => top_data_read
             );
     
