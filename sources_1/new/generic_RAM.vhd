@@ -19,7 +19,7 @@ entity generic_RAM is
         height : integer; -- number of rows
         width : integer; -- number of columns
         word_size : integer := 8; -- number of bits in a word
-        default_value : std_logic_vector := "1"
+        default_value : std_logic := '1'
     );
     port (
         clk : in std_logic;
@@ -41,7 +41,9 @@ architecture Behavioral of generic_RAM is
     type RAM_type is array(0 to height - 1) of RAM_vrstice;
 
     -- If you want to initialize RAM content, use this line instead:
-    signal RAM : RAM_type := (others => (others => default_value));
+    --signal deafvalue
+    signal default_vector : std_logic_vector (word_size - 1 downto 0) := (others => default_value);
+    signal RAM : RAM_type := (others => (others => default_vector));
 
 begin
     -- asynchronous reading
