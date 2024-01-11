@@ -64,3 +64,11 @@ Moduli
     * 1-bitni pixel na X, Y koordinatah, podanih zgoraj
 
 ### VPRAŠANJA ZA NEJCA
+
+### Todo
+* [ ] - score na 7 segmentni display
+* [ ] - start / end logika (recmo pritisneš knof in se začne) @samolego
+* [ ] - premikanje kače
+  * [ ] z gumbi
+  * [ ] z giroskopom
+* [x] - naključno generiranje sadežev @samolego
