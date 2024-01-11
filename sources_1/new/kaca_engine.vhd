@@ -18,15 +18,12 @@ entity kaca_engine is
 end entity;
 
 architecture Behavioral of kaca_engine is
-    -- todo: samodejno izracunaj števila bitov iz višine in širine ?
-    constant width_bits : integer := 6;
-    constant height_bits : integer := 5;
     constant word_size : integer := 3;
 
-    signal snake_startx : integer range 0 to width - 1;
-    signal snake_starty : integer range 0 to height - 1;
-    signal snake_endx : integer range 0 to width - 1;
-    signal snake_endy : integer range 0 to height - 1;
+    signal snake_startx : integer range 0 to width - 1 := width / 2;
+    signal snake_starty : integer range 0 to height - 1 := height / 2;
+    signal snake_endx : integer range 0 to width - 1 := width / 2;
+    signal snake_endy : integer range 0 to height - 1 := height / 2;
 
     signal old_smer_premika : std_logic_vector (1 downto 0);
 
@@ -34,6 +31,7 @@ architecture Behavioral of kaca_engine is
     signal newy : integer range -1 to height - 1;
 
     signal iscore : natural := 0;
+    signal has_sadje : std_logic := '0';
 
     signal addr_writeY : integer range 0 to height - 1;
     signal addr_writeX : integer range 0 to width - 1;
@@ -44,7 +42,7 @@ architecture Behavioral of kaca_engine is
     signal RAM_we : std_logic := '0';
 
     type game_state is (
-        CHECK_POS, POPRAVI_STARO_GLAVO, ZAPISI_NOVO_GLAVO, POPRAVI_STARI_REP, ZAPISI_NOVI_REP, END_GAME
+        CHECK_POS, DODAJ_SADEZ, POPRAVI_STARO_GLAVO, ZAPISI_NOVO_GLAVO, POPRAVI_STARI_REP, ZAPISI_NOVI_REP, END_GAME
     );
 
     signal state : game_state := CHECK_POS;
@@ -123,8 +121,29 @@ begin
                             -- ce je jabolko, povecaj rezultat
                             if data_read = "001" then
                                 iscore <= iscore + 1;
+                                has_sadje <= '0';
                             end if;
                         end if;
+                    end if;
+
+                    if has_sadje = '1' then
+                        state <= POPRAVI_STARO_GLAVO;
+                    else
+                        state <= DODAJ_SADEZ;
+                    end if;
+                when DODAJ_SADEZ =>
+                    -- poskusi dodati novo jabolko
+                    -- kao random koordinate
+                    addr_readX <= (iscore + snake_startx + snake_endy) mod width;
+                    addr_readY <= (iscore + snake_starty + snake_endx) mod height;
+
+                    if data_read = "000" then
+                        -- dodaj jabolko
+                        addr_writeX <= addr_readX;
+                        addr_writeY <= addr_readY;
+                        data_write <= "001";
+                        RAM_we <= '1';
+                        has_sadje <= '1';
                     end if;
 
                     state <= POPRAVI_STARO_GLAVO;

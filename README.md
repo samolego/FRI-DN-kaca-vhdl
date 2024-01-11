@@ -71,4 +71,4 @@ Moduli
 * [ ] - premikanje kače
   * [ ] z gumbi
   * [ ] z giroskopom
-* [ ] - naključno generiranje sadežev @samolego
+* [x] - naključno generiranje sadežev @samolego
