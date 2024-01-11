@@ -75,8 +75,8 @@ begin
     -- ram katerega vsebina je enaka zaslonski sliki
     displayRam : entity work.framebuffer_RAM2(Behavioral)
             generic map(
-                width => screen_width,
-                height => screen_height
+                width => SIZE_X,
+                height => SIZE_Y
             )
             port map(
                 clk => CLK100MHZ,
