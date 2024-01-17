@@ -205,15 +205,15 @@ begin
                     -- podatke damo na data_write
                     data_write <= ismer_premika;
                     RAM_we <= '1';
-
+                    state <= POPRAVI_STARO_GLAVO_1;
+                when POPRAVI_STARO_GLAVO_1 =>
+                    RAM_we <= '0';
+                    
                     -- todo tukajle se da lepse narediti (da je vsak ovinek drugačen, torej 8 ovinkov ne 4)
                     -- sporoci za zapis sprite-a
                     x_display <= snake_startx;
                     y_display <= snake_starty;
-                    state <= POPRAVI_STARO_GLAVO_1;
-                when POPRAVI_STARO_GLAVO_1 =>
-                    RAM_we <= '0';
-
+                    
                     -- nastavimo sprite index
                     if old_smer_premika = ismer_premika(1 downto 0) then
                         sprite_ix <= "100" & old_smer_premika; -- spremeni staro glavo v ravno telo
