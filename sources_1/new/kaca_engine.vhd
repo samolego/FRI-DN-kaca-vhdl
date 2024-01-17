@@ -44,15 +44,29 @@ architecture Behavioral of kaca_engine is
     signal RAM_we : std_logic := '0';
 
     type game_state is (
-        CHECK_POS, DODAJ_SADEZ, POPRAVI_STARO_GLAVO, ZAPISI_NOVO_GLAVO, POPRAVI_STARI_REP, ZAPISI_NOVI_REP, END_GAME
+        CHECK_POS_0,
+        CHECK_POS_1,
+        CHECK_POS_2,
+        CHECK_POS_3,
+        DODAJ_SADEZ_0,
+        DODAJ_SADEZ_1,
+        POPRAVI_STARO_GLAVO_0,
+        POPRAVI_STARO_GLAVO_1,
+        ZAPISI_NOVO_GLAVO_0,
+        POPRAVI_STARI_REP_0,
+        POPRAVI_STARI_REP_1,
+        POPRAVI_STARI_REP_2,
+        ZAPISI_NOVI_REP_0,
+        ZAPISI_NOVI_REP_1,
+        END_GAME
     );
 
-    signal state : game_state := CHECK_POS;
+    signal state : game_state := CHECK_POS_0;
 
 begin
 
     score <= iscore;
-    ismer_premika <= "1" & smer_premika;
+    ismer_premika <= allow_snake_move & smer_premika;
 
     -- Stanje igre
     ram : entity work.generic_RAM(Behavioral)
@@ -73,15 +87,15 @@ begin
         );
 
     -- Skrbi za premikanje kace
-    premakni_kaco : process (CLK100MHZ, state, ismer_premika)
+    premakni_kaco : process (CLK100MHZ)
     begin
-        if rising_edge(CLK100MHZ) and allow_snake_move = '1' then
+        if rising_edge(CLK100MHZ) then
             case (state) is
                 when END_GAME =>
                     display_we <= '0';
                     RAM_we <= '0';
                     game_over <= '1';
-                when CHECK_POS =>
+                when CHECK_POS_0 =>
                     -- izracunaj novi koordinati glave kace
                     newx <= 0;
                     newy <= 0;
@@ -100,46 +114,52 @@ begin
                             newx <= 0;
                             newy <= 0;
                     end case;
-
+                    state <= CHECK_POS_1;
+                when CHECK_POS_1 =>
                     -- preveri koordinate glave kace, ce bodo šle izven polja
-                    if (newx = -1 and snake_startx = 0) or (newx = 1 and snake_startx = width - 1) or (newy =- 1 and snake_starty = 0) or (newy = 1 and snake_starty = height - 1) then
+                    if (newx =- 1 and snake_startx = 0) or (newx = 1 and snake_startx = width - 1) or (newy =- 1 and snake_starty = 0) or (newy = 1 and snake_starty = height - 1) then
                         state <= END_GAME;
                     elsif newx /= 0 or newy /= 0 then
                         -- izracunaj kooridnate glave kace
                         newx <= snake_startx + newx;
                         newy <= snake_starty + newy;
 
-                        -- preveri pomnilniško lokacijo, ce tam obstaja
-                        -- del kace
+                        state <= CHECK_POS_2;
+                    end if;
+                when CHECK_POS_2 =>
+                    -- preveri pomnilniško lokacijo, ce tam obstaja
+                    -- del kace
 
-                        -- podaj naslov
-                        addr_readX <= newx;
-                        addr_readY <= newy;
-                        -- podatki pridejo na data_read
+                    -- podaj naslov
+                    addr_readX <= newx;
+                    addr_readY <= newy;
+                    -- podatki pridejo na data_read
 
-                        -- data_read mora biti prazen ali jabolko, sicer je konec
-                        if data_read /= "000" and data_read /= "001" then
-                            state <= END_GAME;
-                        else
-                            -- ce je jabolko, povecaj rezultat
-                            if data_read = "001" then
-                                iscore <= iscore + 1;
-                                has_sadje <= '0';
-                            end if;
+                    -- data_read mora biti prazen ali jabolko, sicer je konec
+                    if data_read /= "000" and data_read /= "001" then
+                        state <= END_GAME;
+                    else
+                        -- ce je jabolko, povecaj rezultat
+                        if data_read = "001" then
+                            iscore <= iscore + 1;
+                            has_sadje <= '0';
                         end if;
                     end if;
 
+                    state <= CHECK_POS_3;
+                when CHECK_POS_3 =>
                     if has_sadje = '1' then
-                        state <= POPRAVI_STARO_GLAVO;
+                        state <= POPRAVI_STARO_GLAVO_0;
                     else
-                        state <= DODAJ_SADEZ;
+                        state <= DODAJ_SADEZ_0;
                     end if;
-                when DODAJ_SADEZ =>
+                when DODAJ_SADEZ_0 =>
                     -- poskusi dodati novo jabolko
                     -- kao random koordinate
                     addr_readX <= (iscore + snake_startx + snake_endy) mod width;
                     addr_readY <= (iscore + snake_starty + snake_endx) mod height;
-
+                    state <= DODAJ_SADEZ_1;
+                when DODAJ_SADEZ_1 =>
                     if data_read = "000" then
                         -- dodaj jabolko
                         addr_writeX <= addr_readX;
@@ -149,8 +169,8 @@ begin
                         has_sadje <= '1';
                     end if;
 
-                    state <= POPRAVI_STARO_GLAVO;
-                when POPRAVI_STARO_GLAVO =>
+                    state <= POPRAVI_STARO_GLAVO_0;
+                when POPRAVI_STARO_GLAVO_0 =>
                     -- popravi staro glavo
                     addr_writeX <= snake_startx;
                     addr_writeY <= snake_starty;
@@ -162,7 +182,8 @@ begin
                     -- sporoci za zapis sprite-a
                     x_display <= snake_startx;
                     y_display <= snake_starty;
-
+                    state <= POPRAVI_STARO_GLAVO_1;
+                when POPRAVI_STARO_GLAVO_1 =>
                     if old_smer_premika = ismer_premika(1 downto 0) then
                         sprite_ix <= "100" & old_smer_premika; -- spremeni staro glavo v ravno telo
                     elsif (old_smer_premika = "00" and ismer_premika(1 downto 0) = "01") or (old_smer_premika = "11" and ismer_premika(1 downto 0) = "10") then
@@ -177,9 +198,9 @@ begin
                     end if;
 
                     display_we <= '1';
-                    state <= ZAPISI_NOVO_GLAVO;
+                    state <= ZAPISI_NOVO_GLAVO_0;
 
-                when ZAPISI_NOVO_GLAVO =>
+                when ZAPISI_NOVO_GLAVO_0 =>
                     -- zapiši novo glavo kace
                     snake_startx <= newx;
                     snake_starty <= newy;
@@ -194,12 +215,14 @@ begin
                     sprite_ix <= "001" & ismer_premika(1 downto 0);
                     display_we <= '1';
 
-                    state <= POPRAVI_STARI_REP;
-                when POPRAVI_STARI_REP =>
+                    state <= POPRAVI_STARI_REP_0;
+                when POPRAVI_STARI_REP_0 =>
                     -- odstrani rep kače in nastavi nov kazalec na rep
                     addr_readX <= snake_endx;
                     addr_readY <= snake_endy;
 
+                    state <= POPRAVI_STARI_REP_1;
+                when POPRAVI_STARI_REP_1 =>
                     -- podatki pridejo na data_read
                     case data_read is
                         when "100" => -- desno
@@ -214,6 +237,8 @@ begin
                             newx <= 0;
                             newy <= 0;
                     end case;
+                    state <= POPRAVI_STARI_REP_2;
+                when POPRAVI_STARI_REP_2 =>
                     addr_writeX <= snake_endx;
                     addr_writeY <= snake_endy;
                     data_write <= "000"; -- pocisti stari rep
@@ -229,19 +254,21 @@ begin
                     snake_endx <= snake_endx + newx;
                     snake_endy <= snake_endy + newy;
 
-                    state <= ZAPISI_NOVI_REP;
+                    state <= ZAPISI_NOVI_REP_0;
 
-                when ZAPISI_NOVI_REP =>
+                when ZAPISI_NOVI_REP_0 =>
                     -- preberi smer novega repa (trupa)
                     addr_readX <= snake_endx;
                     addr_readY <= snake_endy;
 
+                    state <= ZAPISI_NOVI_REP_1;
+                when ZAPISI_NOVI_REP_1 =>
                     -- javi spremembo repa (trup se spremeni v rep)
                     x_display <= snake_endx;
                     y_display <= snake_endy;
                     sprite_ix <= "010" & data_read(1 downto 0);
 
-                    state <= CHECK_POS;
+                    state <= CHECK_POS_0;
             end case;
         end if;
         old_smer_premika <= ismer_premika(1 downto 0);

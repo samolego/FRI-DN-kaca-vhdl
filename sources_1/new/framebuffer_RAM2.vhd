@@ -62,8 +62,7 @@ begin
         generic map(
             width => width,
             height => height,
-            word_size => 5,
-            default_value => '0'
+            word_size => 5
         )
         port map(
             clk => clk,
