@@ -110,11 +110,11 @@ begin
                             newy <= 0;
                             newx <= 1;
                         when "101" => -- gor
-                            newy <= - 1;
+                            newy <= -1;
                             newx <= 0;
                         when "110" => -- levo
                             newy <= 0;
-                            newx <= - 1;
+                            newx <= -1;
                         when "111" => -- dol
                             newy <= 1;
                             newx <= 0;
@@ -256,12 +256,16 @@ begin
                     -- podatki pridejo na data_read
                     case data_read is
                         when "100" => -- desno
+                            newy <= 0;
                             newx <= 1;
                         when "101" => -- gor
+                            newx <= 0;
                             newy <= - 1;
                         when "110" => -- levo
+                            newy <= 0;
                             newx <= - 1;
                         when "111" => -- dol
+                            newx <= 0;
                             newy <= 1;
                         when others =>
                             newx <= 0;
