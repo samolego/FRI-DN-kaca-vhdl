@@ -66,7 +66,7 @@ Moduli
 ### VPRAŠANJA ZA NEJCA
 
 ### Todo
-* [ ] - score na 7 segmentni display
+* [x] - score na 7 segmentni display
 * [ ] - start / end logika (recmo pritisneš knof in se začne) @samolego
     * ali želiva, da se ob pritisku na gumb igra resetira? To je namreč precej dela, ker je treba celoten ram zbrisat in vse nastavit nazaj na začetno stanje
 * [ ] - premikanje kače - TEŽAVE: dva modula pišeta na isti signal!

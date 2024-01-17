@@ -35,6 +35,10 @@ architecture Behavioral of top is
     -- stevilo ploscic na zaslonu (spritov do dolzini in visini)
     constant SIZE_X : integer := 40;
     constant SIZE_Y : integer := 30;
+    -- ko je 1, se kaca lahko premakne
+    signal allow_snake_move : std_logic := '0';
+    -- na koliko urinih period se kaca premakne
+    constant SNAKE_MOVE_TIME : integer := 50_000_000;
     -- trenutni rezultat (tale je zgolj out signal, pravi score je v kaca_engine)
     signal score : natural := 0;
     signal game_over : std_logic := '0';
@@ -59,6 +63,7 @@ architecture Behavioral of top is
 
 begin
 
+    -- motor igre
     kaca_engine : entity work.kaca_engine(Behavioral)
         generic map(
             width => SIZE_X,
@@ -67,12 +72,22 @@ begin
         port map(
             smer_premika => "100",
             CLK100MHZ => CLK100MHZ,
+            allow_snake_move => allow_snake_move,
             score => score,
             game_over => game_over,
             x_display => x_display,
             y_display => y_display,
             sprite_ix => sprite_ix,
             display_we => sprite_we
+        );
+
+    -- modul, ki nastavi, kdaj se kaca lahko premakne
+    snake_move_prescaler : entity work.prescaler(Behavioral)
+        generic map(limit => SNAKE_MOVE_TIME)
+        port map(
+            clock => CLK100MHZ,
+            reset => BTNC,
+            clock_enable => allow_snake_move
         );
 
     -- ram katerega vsebina je enaka zaslonski sliki

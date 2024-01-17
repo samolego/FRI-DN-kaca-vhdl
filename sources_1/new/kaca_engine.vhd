@@ -9,6 +9,7 @@ entity kaca_engine is
     port (
         smer_premika : in std_logic_vector (2 downto 0);
         CLK100MHZ : in std_logic;
+        allow_snake_move : in std_logic;
         score : out natural;
         x_display : out integer range 0 to width - 1;
         y_display : out integer range 0 to height - 1;
@@ -30,7 +31,7 @@ architecture Behavioral of kaca_engine is
     signal newx : integer range -1 to width - 1;
     signal newy : integer range -1 to height - 1;
 
-    signal iscore : natural := 42;
+    signal iscore : natural := 0;
     signal has_sadje : std_logic := '0';
 
     signal addr_writeY : integer range 0 to height - 1;
@@ -72,7 +73,7 @@ begin
     -- Skrbi za premikanje kace
     premakni_kaco : process (CLK100MHZ, state, smer_premika)
     begin
-        if rising_edge(CLK100MHZ) then
+        if rising_edge(CLK100MHZ) and allow_snake_move = '1' then
             case (state) is
                 when END_GAME =>
                     display_we <= '0';
