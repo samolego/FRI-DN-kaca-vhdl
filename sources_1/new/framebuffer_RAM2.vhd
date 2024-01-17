@@ -63,7 +63,7 @@ begin
             width => width,
             height => height,
             word_size => 5,
-            default_value => '1'
+            default_value => '0'
         )
         port map(
             clk => clk,

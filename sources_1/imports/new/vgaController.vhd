@@ -24,8 +24,8 @@ entity vgaController is
            VGA_G  : out STD_LOGIC_VECTOR(3 downto 0);
            VGA_B  : out STD_LOGIC_VECTOR(3 downto 0);
            --dodajanje rama
-           ram_addr_readY : inout integer range 0 to 479; --(dispRam_height_bits - 1 downto 0);
-           ram_addr_readX : inout integer range 0 to 639; --(dispRam_width_bits - 1 downto 0);
+           ram_addr_readY : out integer range 0 to 479; --(dispRam_height_bits - 1 downto 0);
+           ram_addr_readX : out integer range 0 to 639; --(dispRam_width_bits - 1 downto 0);
            data_read : in std_logic
            );
 end vgaController;
@@ -53,7 +53,6 @@ signal vga_row    : integer range 0 to 479;
 --signal getNewData: std_logic := '1';
 --signal presc : natural range 0 to 4 := 0;
 --signal bitInRowCount : natural range 0 to 15;
-signal bitValue: std_logic;
 signal bitVector: std_logic_vector(3 downto 0) := "0000";
 
     
@@ -90,11 +89,10 @@ begin
     ram_addr_readY <= vga_row; 
     ram_addr_readX <= vga_column; 
     
-    process (display_area, ram_addr_readX, data_read)
+    process (display_area, vga_column, data_read)
     begin
          if display_area='1' then
-                bitValue <= data_read;
-                bitVector <= (others => bitValue);
+                bitVector <= (others => data_read);
                 VGA_R <= bitVector;
                 VGA_G <= bitVector;
                 VGA_B <= bitVector;
@@ -122,8 +120,7 @@ begin
 --            if rising_edge(CLK100MHZ) then
 --                if presc = 0 then
 --                    --preberemo trenutni bit in glede na njegovo vrenost nastavimo topove
---                    bitValue <= data_read;
---                    bitVector <= (others => bitValue(0));
+--                    bitVector <= (others => data_read);
 --                    VGA_R <= bitVector;
 --                    VGA_G <= bitVector;
 --                    VGA_B <= bitVector;

@@ -24,7 +24,6 @@ entity top is
         VGA_G : out std_logic_vector(3 downto 0);
         VGA_B : out std_logic_vector(3 downto 0);
         -- signali za 7 segmentni zaslon
-        BTNC : in std_logic;
         SEG : out unsigned(6 downto 0);
         AN : out unsigned(7 downto 0)
     );
@@ -76,6 +75,7 @@ begin
             smer_premika => smer_premika,
             CLK100MHZ => CLK100MHZ,
             allow_snake_move => allow_snake_move,
+            --allow_snake_move => '0',
             score => score,
             game_over => game_over,
             x_display => x_display,
@@ -89,7 +89,7 @@ begin
         generic map(limit => SNAKE_MOVE_TIME)
         port map(
             clock => CLK100MHZ,
-            reset => BTNC,
+            reset => not CPU_RESETN,
             clock_enable => allow_snake_move
         );
 
@@ -135,7 +135,7 @@ begin
             anode => AN,
             cathode => SEG,
             clock => CLK100MHZ,
-            reset => BTNC,
+            reset => not CPU_RESETN,
             value => to_unsigned(integer(score), 32)
         );
 

@@ -102,7 +102,7 @@ begin
                     end case;
 
                     -- preveri koordinate glave kace, ce bodo šle izven polja
-                    if (newx =- 1 and snake_startx = 0) or (newx = 1 and snake_startx = width - 1) or (newy =- 1 and snake_starty = 0) or (newy = 1 and snake_starty = height - 1) then
+                    if (newx = -1 and snake_startx = 0) or (newx = 1 and snake_startx = width - 1) or (newy =- 1 and snake_starty = 0) or (newy = 1 and snake_starty = height - 1) then
                         state <= END_GAME;
                     elsif newx /= 0 or newy /= 0 then
                         -- izracunaj kooridnate glave kace
