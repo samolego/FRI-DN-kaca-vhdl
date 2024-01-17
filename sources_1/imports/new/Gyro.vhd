@@ -31,7 +31,7 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity testGyro is
+entity gyro is
       Port (
       CLK100MHZ : in std_logic;
       CPU_RESETN : in STD_LOGIC;
@@ -58,9 +58,9 @@ entity testGyro is
     signal nazaj   : std_logic := '0'; 
     signal ACL_OFFSET : integer := 60;
     signal cpu_reset : std_logic := '0';
-end testGyro;
+end gyro;
 
-architecture Behavioral of testGyro is
+architecture Behavioral of gyro is
 
 component AccelerometerCtl is
 generic 

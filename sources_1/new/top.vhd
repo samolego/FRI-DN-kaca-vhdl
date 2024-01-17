@@ -10,7 +10,6 @@ use IEEE.NUMERIC_STD.all;
 -- any Xilinx leaf cells in this code.
 --library UNISIM;
 --use UNISIM.VComponents.all;
---tkrotk
 
 entity top is
     port (
@@ -25,7 +24,15 @@ entity top is
         VGA_B : out std_logic_vector(3 downto 0);
         -- signali za 7 segmentni zaslon
         SEG : out unsigned(6 downto 0);
-        AN : out unsigned(7 downto 0)
+        AN : out unsigned(7 downto 0);
+        -- signali z gyro
+        ACL_SCLK       : out STD_LOGIC;
+        ACL_MOSI       : out STD_LOGIC;
+        ACL_MISO       : in STD_LOGIC;
+        ACL_CSN        : out STD_LOGIC;
+        
+        SW : in  std_logic_vector(15 downto 0) := (others => '0'); 
+        LED : out  std_logic_vector(15 downto 0) := (others => '0')
     );
 end entity;
 
@@ -63,6 +70,9 @@ architecture Behavioral of top is
     signal topAddr_readX : integer range 0 to screen_width - 1 := 0; --na zacetku prebere prvo vrstico
     signal top_data_read : std_logic := '0';
 
+    --ledice in registri
+    signal SW_reg : std_logic_vector(15 downto 0); 
+    signal LED_reg : std_logic_vector(15 downto 0);
 begin
 
     -- motor igre
@@ -138,5 +148,18 @@ begin
             reset => not CPU_RESETN,
             value => to_unsigned(integer(score), 32)
         );
-
+    
+    Gyro: entity work.gyro(Behavioral)
+      port map (
+      CLK100MHZ => CLK100MHZ,
+      CPU_RESETN => not CPU_RESETN,
+      SW => SW_REG,
+      LED => LED_REG,
+      
+      ACL_SCLK => ACL_SCLK,
+      ACL_MOSI => ACL_MOSI,
+      ACL_MISO => ACL_MISO,
+      ACL_CSN => ACL_CSN
+      -- PS2 interface signals ne uporbljamo
+      );
 end Behavioral;
