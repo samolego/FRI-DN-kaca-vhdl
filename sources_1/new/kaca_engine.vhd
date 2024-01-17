@@ -30,7 +30,7 @@ architecture Behavioral of kaca_engine is
     signal newx : integer range -1 to width - 1;
     signal newy : integer range -1 to height - 1;
 
-    signal iscore : natural := 0;
+    signal iscore : natural := 42;
     signal has_sadje : std_logic := '0';
 
     signal addr_writeY : integer range 0 to height - 1;

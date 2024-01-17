@@ -44,8 +44,6 @@ architecture Behavioral of framebuffer_RAM2 is
     signal scaled_write_y : integer range 0 to height / sprite_size - 1;
     signal scaled_read_x : integer range 0 to width / sprite_size - 1;
     signal scaled_read_y : integer range 0 to height / sprite_size - 1;
-
-
 begin
 
     data_read <= sprite_image_vector((addr_readY mod sprite_size) * sprite_size + addr_readX mod sprite_size);
@@ -55,8 +53,6 @@ begin
             sprite_index => read_sprite_idx,
             sprite_image_bits => sprite_image_vector
         );
-    
-
     scaled_read_x <= addr_readX / sprite_size;
     scaled_read_y <= addr_readY / sprite_size;
     scaled_write_x <= addr_writeX / sprite_size;
