@@ -178,11 +178,17 @@ begin
                 when DODAJ_SADEZ_1 =>
                     -- ce ni, dodaj jabolko
                     if data_read = "000" then
-                        -- dodaj jabolko
+                        -- dodaj jabolko v game ram
                         addr_writeX <= addr_readX;
                         addr_writeY <= addr_readY;
                         data_write <= "001";
                         RAM_we <= '1';
+                        -- doda jabolko na zaslon
+                        x_display <= addr_readX;
+                        y_display <= addr_readY;
+                        sprite_ix <= "11111";
+                        display_we <= '1';
+
                         has_sadje <= '1';
                         state <= POCAKAJ_ZAPIS_SADEZA;
                     else
@@ -190,6 +196,7 @@ begin
                     end if;
                 when POCAKAJ_ZAPIS_SADEZA =>
                     RAM_we <= '0';
+                    display_we <= '0';
                     state <= POPRAVI_STARO_GLAVO_0;
                 when POPRAVI_STARO_GLAVO_0 =>
                     -- popravi staro glavo
