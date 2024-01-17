@@ -3,7 +3,7 @@ import os
 import cv2
 
 
-TEMPLATE_FILE = 'sources_1/new/index2sprite.template.vhd'
+TEMPLATE_FILE = 'templates/index2sprite_template.vhd'
 OUTPUT_FILE = 'sources_1/new/index2sprite.vhd'
 ASSETS_FOLDER = 'assets/'
 REPLACE_PATTERN = '-- {{ cases }}'
@@ -20,6 +20,9 @@ def convert_images(template_vhd_file, output_vhd_file, assets_folder, replace_pa
     # Open template file
     with open(template_vhd_file, 'r') as f:
         template = f.read()
+
+        # Replace name of entity
+        template = template.replace('index2sprite_template', 'index2sprite')
 
         # Get images in assets folder
         images = os.listdir(assets_folder)
