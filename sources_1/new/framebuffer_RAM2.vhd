@@ -22,7 +22,7 @@ entity framebuffer_RAM2 is
     );
     port (
         clk : in std_logic;
-        we : in std_logic;
+        display_we : in std_logic;
         -- pisanje - zapisemo celoten 16x16 sprite (reshaped v 256-bitni vektor)
         addr_writeY : in integer range 0 to height - 1;
         addr_writeX : in integer range 0 to width - 1;
@@ -66,7 +66,7 @@ begin
         )
         port map(
             clk => clk,
-            we => we,
+            we => display_we,
             addr_writeY => scaled_write_y,
             addr_writeX => scaled_write_x,
             addr_readY => scaled_read_y,

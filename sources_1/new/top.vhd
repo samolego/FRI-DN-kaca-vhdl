@@ -51,7 +51,7 @@ architecture Behavioral of top is
     -- index sprita, ki naj se zapise (glej index2sprite.vhd)
     signal sprite_ix : std_logic_vector(4 downto 0) := "00000";
     -- ali dovoli zapis sprita
-    signal sprite_we : std_logic := '0';
+    signal display_we : std_logic := '0';
 
     --signali za display ram
     constant screen_width : integer := 640;
@@ -82,7 +82,7 @@ begin
             x_display => x_display,
             y_display => y_display,
             sprite_ix => sprite_ix,
-            display_we => sprite_we
+            display_we => display_we
         );
 
     -- modul, ki nastavi, kdaj se kaca lahko premakne
@@ -102,9 +102,9 @@ begin
         )
         port map(
             clk => CLK100MHZ,
-            we => sprite_we,
-            addr_writeY => x_display,
-            addr_writeX => y_display,
+            display_we => display_we,
+            addr_writeY => y_display,
+            addr_writeX => x_display,
             addr_readY => topAddr_readY,
             addr_readX => topAddr_readX,
             sprite_idx2write => sprite_ix,
