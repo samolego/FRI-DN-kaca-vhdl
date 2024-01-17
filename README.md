@@ -32,6 +32,9 @@ Moduli
   * skrbi za premik kače, hrani podatke o polju in sadežih
   * opis stanja igre:
     * `1AB` @ X, Y - na X, Y je kača s smerjo `AB`
+  * __vhodi__
+    * smer_premika = 2-bitni vektor, ki določa smer premika kače (glej zgoraj)
+    * allow_snake_move = bit, ki določa, ali se kača lahko premakne (1 = da, 0 = ne)
 
   * __izhodi__ 
     * spriti

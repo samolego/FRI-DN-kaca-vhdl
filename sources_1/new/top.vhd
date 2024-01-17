@@ -37,10 +37,13 @@ architecture Behavioral of top is
     constant SIZE_Y : integer := 30;
     -- ko je 1, se kaca lahko premakne
     signal allow_snake_move : std_logic := '0';
+    -- smer premikanja kace (00 - desno, 01 - gor, 10 - levo, 11 - dol)
+    signal smer_premika : std_logic_vector(1 downto 0) := "00";
     -- na koliko urinih period se kaca premakne
     constant SNAKE_MOVE_TIME : integer := 50_000_000;
     -- trenutni rezultat (tale je zgolj out signal, pravi score je v kaca_engine)
     signal score : natural := 0;
+    -- signal ko je konec igre
     signal game_over : std_logic := '0';
     -- kam naj se zapise sprite na zaslon
     signal x_display : integer range 0 to SIZE_X - 1 := 0;
@@ -70,7 +73,7 @@ begin
             height => SIZE_Y
         )
         port map(
-            smer_premika => "100",
+            smer_premika => smer_premika,
             CLK100MHZ => CLK100MHZ,
             allow_snake_move => allow_snake_move,
             score => score,
