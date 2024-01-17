@@ -48,16 +48,22 @@ architecture Behavioral of kaca_engine is
         CHECK_POS_1,
         CHECK_POS_2,
         CHECK_POS_3,
+        CHECK_POS_4,
         DODAJ_SADEZ_0,
         DODAJ_SADEZ_1,
+        POCAKAJ_ZAPIS_SADEZA,
         POPRAVI_STARO_GLAVO_0,
         POPRAVI_STARO_GLAVO_1,
+        POCAKAJ_ZAPIS_STARE_GLAVE,
         ZAPISI_NOVO_GLAVO_0,
+        POCAKAJ_ZAPIS_NOVE_GLAVE,
         POPRAVI_STARI_REP_0,
         POPRAVI_STARI_REP_1,
         POPRAVI_STARI_REP_2,
+        POCAKAJ_ZAPIS_STAREGA_REPA,
         ZAPISI_NOVI_REP_0,
         ZAPISI_NOVI_REP_1,
+        POCAKAJ_ZAPIS_NOVEGA_REPA,
         END_GAME
     );
 
@@ -97,19 +103,21 @@ begin
                     game_over <= '1';
                 when CHECK_POS_0 =>
                     -- izracunaj novi koordinati glave kace
-                    newx <= 0;
-                    newy <= 0;
                     display_we <= '0';
                     RAM_we <= '0';
                     case ismer_premika is
                         when "100" => -- desno
+                            newy <= 0;
                             newx <= 1;
                         when "101" => -- gor
                             newy <= - 1;
+                            newx <= 0;
                         when "110" => -- levo
+                            newy <= 0;
                             newx <= - 1;
                         when "111" => -- dol
                             newy <= 1;
+                            newx <= 0;
                         when others =>
                             newx <= 0;
                             newy <= 0;
@@ -125,6 +133,9 @@ begin
                         newy <= snake_starty + newy;
 
                         state <= CHECK_POS_2;
+                    else
+                        -- nismo se premaknili
+                        state <= CHECK_POS_0;
                     end if;
                 when CHECK_POS_2 =>
                     -- preveri pomnilniško lokacijo, ce tam obstaja
@@ -133,6 +144,9 @@ begin
                     -- podaj naslov
                     addr_readX <= newx;
                     addr_readY <= newy;
+
+                    state <= CHECK_POS_3;
+                when CHECK_POS_3 =>
                     -- podatki pridejo na data_read
 
                     -- data_read mora biti prazen ali jabolko, sicer je konec
@@ -146,8 +160,8 @@ begin
                         end if;
                     end if;
 
-                    state <= CHECK_POS_3;
-                when CHECK_POS_3 =>
+                    state <= CHECK_POS_4;
+                when CHECK_POS_4 =>
                     if has_sadje = '1' then
                         state <= POPRAVI_STARO_GLAVO_0;
                     else
@@ -156,10 +170,13 @@ begin
                 when DODAJ_SADEZ_0 =>
                     -- poskusi dodati novo jabolko
                     -- kao random koordinate
+
+                    -- prvo preberi ce je tam kaj
                     addr_readX <= (iscore + snake_startx + snake_endy) mod width;
                     addr_readY <= (iscore + snake_starty + snake_endx) mod height;
                     state <= DODAJ_SADEZ_1;
                 when DODAJ_SADEZ_1 =>
+                    -- ce ni, dodaj jabolko
                     if data_read = "000" then
                         -- dodaj jabolko
                         addr_writeX <= addr_readX;
@@ -167,8 +184,12 @@ begin
                         data_write <= "001";
                         RAM_we <= '1';
                         has_sadje <= '1';
+                        state <= POCAKAJ_ZAPIS_SADEZA;
+                    else
+                        state <= POPRAVI_STARO_GLAVO_0;
                     end if;
-
+                when POCAKAJ_ZAPIS_SADEZA =>
+                    RAM_we <= '0';
                     state <= POPRAVI_STARO_GLAVO_0;
                 when POPRAVI_STARO_GLAVO_0 =>
                     -- popravi staro glavo
@@ -184,6 +205,9 @@ begin
                     y_display <= snake_starty;
                     state <= POPRAVI_STARO_GLAVO_1;
                 when POPRAVI_STARO_GLAVO_1 =>
+                    RAM_we <= '0';
+
+                    -- nastavimo sprite index
                     if old_smer_premika = ismer_premika(1 downto 0) then
                         sprite_ix <= "100" & old_smer_premika; -- spremeni staro glavo v ravno telo
                     elsif (old_smer_premika = "00" and ismer_premika(1 downto 0) = "01") or (old_smer_premika = "11" and ismer_premika(1 downto 0) = "10") then
@@ -198,8 +222,10 @@ begin
                     end if;
 
                     display_we <= '1';
+                    state <= POCAKAJ_ZAPIS_STARE_GLAVE;
+                when POCAKAJ_ZAPIS_STARE_GLAVE =>
+                    display_we <= '0';
                     state <= ZAPISI_NOVO_GLAVO_0;
-
                 when ZAPISI_NOVO_GLAVO_0 =>
                     -- zapiši novo glavo kace
                     snake_startx <= newx;
@@ -215,6 +241,10 @@ begin
                     sprite_ix <= "001" & ismer_premika(1 downto 0);
                     display_we <= '1';
 
+                    state <= POCAKAJ_ZAPIS_NOVE_GLAVE;
+                when POCAKAJ_ZAPIS_NOVE_GLAVE =>
+                    display_we <= '0';
+                    RAM_we <= '0';
                     state <= POPRAVI_STARI_REP_0;
                 when POPRAVI_STARI_REP_0 =>
                     -- odstrani rep kače in nastavi nov kazalec na rep
@@ -254,8 +284,11 @@ begin
                     snake_endx <= snake_endx + newx;
                     snake_endy <= snake_endy + newy;
 
+                    state <= POCAKAJ_ZAPIS_STAREGA_REPA;
+                when POCAKAJ_ZAPIS_STAREGA_REPA =>
+                    display_we <= '0';
+                    RAM_we <= '0';
                     state <= ZAPISI_NOVI_REP_0;
-
                 when ZAPISI_NOVI_REP_0 =>
                     -- preberi smer novega repa (trupa)
                     addr_readX <= snake_endx;
@@ -267,7 +300,11 @@ begin
                     x_display <= snake_endx;
                     y_display <= snake_endy;
                     sprite_ix <= "010" & data_read(1 downto 0);
+                    display_we <= '1';
 
+                    state <= POCAKAJ_ZAPIS_NOVEGA_REPA;
+                when POCAKAJ_ZAPIS_NOVEGA_REPA =>
+                    display_we <= '0';
                     state <= CHECK_POS_0;
             end case;
         end if;

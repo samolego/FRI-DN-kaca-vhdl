@@ -74,8 +74,8 @@ begin
         port map(
             smer_premika => smer_premika,
             CLK100MHZ => CLK100MHZ,
-            allow_snake_move => allow_snake_move,
-            --allow_snake_move => '0',
+            --allow_snake_move => allow_snake_move,
+            allow_snake_move => '1',
             score => score,
             game_over => game_over,
             x_display => x_display,
