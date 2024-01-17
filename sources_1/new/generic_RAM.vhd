@@ -23,8 +23,8 @@ entity generic_RAM is
     );
     port (
         clk : in std_logic;
-        we : in std_logic;
         -- writing
+        we : in std_logic;
         addr_writeY : in integer range 0 to height - 1;
         addr_writeX : in integer range 0 to width - 1;
         data_write : in std_logic_vector (word_size - 1 downto 0);

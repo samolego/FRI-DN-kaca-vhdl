@@ -172,8 +172,8 @@ begin
                     -- kao random koordinate
 
                     -- prvo preberi ce je tam kaj
-                    addr_readX <= (iscore + snake_startx + snake_endy) mod width;
-                    addr_readY <= (iscore + snake_starty + snake_endx) mod height;
+                    addr_readX <= (iscore + snake_startx * to_integer(unsigned(smer_premika)) + snake_endy) mod width;
+                    addr_readY <= (iscore + snake_starty * to_integer(unsigned(smer_premika)) + snake_endx) mod height;
                     state <= DODAJ_SADEZ_1;
                 when DODAJ_SADEZ_1 =>
                     -- ce ni, dodaj jabolko
