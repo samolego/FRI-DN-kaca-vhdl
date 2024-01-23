@@ -1,16 +1,3 @@
-----------------------------------------------------------------------------------------
--- RAM: 32 rows of 40 bits
--- Simple dual-port: 
---     - simultaneous reading and writing
---     - asynchronous reads: we get data on dataOut immediately after valid addrOut
---     - synchronous writes: data on dataIn are being written at address addrIn 
---                           on a rising edge of the clock and active write-enable (we) 
--- Example: VGA frame buffer
---     - simplification: 30x40 is a 1/16 of the original VGA resolution 480x640
---     - we will declare 32x40 bits RAM but will use only rows 0 to 29
---     - caution: a row is oriented in LSB -> MSB fashion to better model a screen, 
---       where the top-leftmost pixel has an index of 0.
------------------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.NUMERIC_STD.all;
@@ -41,14 +28,7 @@ architecture Behavioral of framebuffer_RAM2 is
     constant sprite_size : integer := 16;
 
     signal read_sprite_idx : std_logic_vector (4 downto 0);
-    signal sprite_image_vector : std_logic_vector (255 downto 0);
-
-
-    type ram_state is (
-        SCALE_COORDS,
-        READ_SPRITE_BIT
-    );
-    signal state : ram_state := SCALE_COORDS;
+    signal sprite_image_vector : std_logic_vector (0 to 255);
 begin
 
     display_bit_read <= sprite_image_vector((addr_readY mod sprite_size) * sprite_size + addr_readX mod sprite_size);
@@ -70,7 +50,7 @@ begin
             we => display_we,
             addr_writeY => addr_writeY,
             addr_writeX => addr_writeX,
-            -- ko beremo, beremo po spritih (ne po pixlih)
+            -- ko beremo, beremo po spritih (ne po pixlih), zato delimo s sprite_size
             addr_readY => addr_readY / sprite_size,
             addr_readX => addr_readX / sprite_size,
             data_write => sprite_idx2write,

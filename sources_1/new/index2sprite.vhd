@@ -10,7 +10,7 @@ use IEEE.NUMERIC_STD.all;
 entity index2sprite is
     port (
         sprite_index : in std_logic_vector (4 downto 0);
-        sprite_image_bits : out std_logic_vector (255 downto 0)
+        sprite_image_bits : out std_logic_vector (0 to 255)
     );
 end entity;
 architecture Behavioral of index2sprite is
