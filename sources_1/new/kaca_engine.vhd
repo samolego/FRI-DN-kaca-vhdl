@@ -231,9 +231,14 @@ begin
                     elsif (old_smer_premika = "00" and ismer_premika(1 downto 0) = "11") or (old_smer_premika = "01" and ismer_premika(1 downto 0) = "10") then
                         -- desno -> dol ali pa gor -> levo
                         sprite_ix <= "01110";
+                    else
+                        -- levo -> gor ali pa dol -> desno
+                        sprite_ix <= "01100";
                     end if;
 
                     display_we <= '1';
+                    old_smer_premika <= ismer_premika(1 downto 0);
+
                     state <= POCAKAJ_ZAPIS_STARE_GLAVE;
                 when POCAKAJ_ZAPIS_STARE_GLAVE =>
                     display_we <= '0';
@@ -332,7 +337,6 @@ begin
                     state <= CHECK_POS_0;
             end case;
         end if;
-        old_smer_premika <= ismer_premika(1 downto 0);
     end process;
 
 end Behavioral;
