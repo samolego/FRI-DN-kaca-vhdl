@@ -40,7 +40,7 @@ architecture Behavioral of top is
     -- vezan na giroskop (oz. gumbe)
     signal smer_premika : std_logic_vector(1 downto 0) := "00";
     -- na koliko urinih period se kaca premakne
-    constant SNAKE_MOVE_TIME : integer := 50_000_000;
+    constant SNAKE_MOVE_TIME : integer := 100_000_000;
     -- trenutni rezultat (tale je zgolj out signal, pravi score je v kaca_engine)
     signal score : natural := 0;
     -- signal ko je konec igre
@@ -75,8 +75,8 @@ begin
         port map(
             smer_premika => smer_premika,
             CLK100MHZ => CLK100MHZ,
-            --allow_snake_move => allow_snake_move,
-            allow_snake_move => '1',
+            allow_snake_move => allow_snake_move,
+            --allow_snake_move => '1',
             score => score,
             game_over => game_over,
             x_display => x_display,
@@ -98,7 +98,9 @@ begin
     displayRam : entity work.framebuffer_RAM2(Behavioral)
         generic map(
             width => SIZE_X,
-            height => SIZE_Y
+            height => SIZE_Y,
+            screen_width => screen_width,
+            screen_height => screen_height
         )
         port map(
             clk => CLK100MHZ,
@@ -108,7 +110,7 @@ begin
             addr_readY => topAddr_readY,
             addr_readX => topAddr_readX,
             sprite_idx2write => sprite_ix,
-            data_read => top_data_read
+            display_bit_read => top_data_read
         );
 
     vgaController : entity work.vgaController(Behavioral)

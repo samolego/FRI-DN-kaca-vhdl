@@ -110,11 +110,11 @@ begin
                             newy <= 0;
                             newx <= 1;
                         when "101" => -- gor
-                            newy <= -1;
+                            newy <= - 1;
                             newx <= 0;
                         when "110" => -- levo
                             newy <= 0;
-                            newx <= -1;
+                            newx <= - 1;
                         when "111" => -- dol
                             newy <= 1;
                             newx <= 0;
@@ -208,12 +208,12 @@ begin
                     state <= POPRAVI_STARO_GLAVO_1;
                 when POPRAVI_STARO_GLAVO_1 =>
                     RAM_we <= '0';
-                    
+
                     -- todo tukajle se da lepse narediti (da je vsak ovinek drugačen, torej 8 ovinkov ne 4)
                     -- sporoci za zapis sprite-a
                     x_display <= snake_startx;
                     y_display <= snake_starty;
-                    
+
                     -- nastavimo sprite index
                     if old_smer_premika = ismer_premika(1 downto 0) then
                         sprite_ix <= "100" & old_smer_premika; -- spremeni staro glavo v ravno telo
