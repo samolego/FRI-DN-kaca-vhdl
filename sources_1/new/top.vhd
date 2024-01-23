@@ -29,7 +29,9 @@ entity top is
         VGA_B : out std_logic_vector(3 downto 0);
         -- signali za 7 segmentni zaslon
         SEG : out unsigned(6 downto 0);
-        AN : out unsigned(7 downto 0)
+        AN : out unsigned(7 downto 0);
+        -- ce je simulacija aktivna
+        SIM : in std_logic
     );
 end entity;
 
@@ -79,8 +81,7 @@ begin
         port map(
             smer_premika => smer_premika,
             CLK100MHZ => CLK100MHZ,
-            allow_snake_move => allow_snake_move,
-            --allow_snake_move => '1',
+            allow_snake_move => allow_snake_move or SIM,
             score => score,
             game_over => game_over,
             x_display => x_display,

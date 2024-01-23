@@ -208,7 +208,7 @@ begin
                     addr_writeX <= snake_startx;
                     addr_writeY <= snake_starty;
                     -- podatke damo na data_write
-                    data_write <= ismer_premika;
+                    data_write <= '1' & ismer_premika(1 downto 0);
                     RAM_we <= '1';
                     state <= POPRAVI_STARO_GLAVO_1;
                 when POPRAVI_STARO_GLAVO_1 =>
@@ -249,7 +249,7 @@ begin
                     snake_starty <= newy;
                     addr_writeX <= newx;
                     addr_writeY <= newy;
-                    data_write <= ismer_premika;
+                    data_write <= '1' & ismer_premika(1 downto 0);
                     RAM_we <= '1';
 
                     -- sporoci za zapis sprite-a
