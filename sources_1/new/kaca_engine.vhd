@@ -106,7 +106,6 @@ begin
                     -- izracunaj novi koordinati glave kace
                     display_we <= '0';
                     RAM_we <= '0';
-                    ate_sadez <= '0';
                     case ismer_premika is
                         when "100" => -- desno
                             newy <= 0;
@@ -225,13 +224,13 @@ begin
                         sprite_ix <= "100" & old_smer_premika; -- spremeni staro glavo v ravno telo
                     elsif (old_smer_premika = "00" and ismer_premika(1 downto 0) = "01") or (old_smer_premika = "11" and ismer_premika(1 downto 0) = "10") then
                         -- desno -> gor ali pa dol -> levo
-                        sprite_ix <= "10101";
+                        sprite_ix <= "01101";
                     elsif (old_smer_premika = "01" and ismer_premika(1 downto 0) = "00") or (old_smer_premika = "10" and ismer_premika(1 downto 0) = "11") then
                         -- gor -> desno ali pa levo -> dol
-                        sprite_ix <= "10111";
+                        sprite_ix <= "01111";
                     elsif (old_smer_premika = "00" and ismer_premika(1 downto 0) = "11") or (old_smer_premika = "01" and ismer_premika(1 downto 0) = "10") then
                         -- desno -> dol ali pa gor -> levo
-                        sprite_ix <= "10110";
+                        sprite_ix <= "01110";
                     end if;
 
                     display_we <= '1';
@@ -243,14 +242,14 @@ begin
                     -- zapiši novo glavo kace
                     snake_startx <= newx;
                     snake_starty <= newy;
-                    addr_writeX <= snake_startx;
-                    addr_writeY <= snake_starty;
+                    addr_writeX <= newx;
+                    addr_writeY <= newy;
                     data_write <= ismer_premika;
                     RAM_we <= '1';
 
                     -- sporoci za zapis sprite-a
-                    x_display <= snake_startx;
-                    y_display <= snake_starty;
+                    x_display <= newx;
+                    y_display <= newy;
                     sprite_ix <= "001" & ismer_premika(1 downto 0);
                     display_we <= '1';
 
@@ -260,11 +259,12 @@ begin
                     RAM_we <= '0';
 
                     if ate_sadez = '1' then
+                        -- ce si pojedel sadez, ne odstrani starega repa (podaljsaj kaco)
+                        ate_sadez <= '0';
                         state <= CHECK_POS_0;
                     else
                         state <= POPRAVI_STARI_REP_0;
                     end if;
-                    state <= POPRAVI_STARI_REP_0;
                 when POPRAVI_STARI_REP_0 =>
                     -- odstrani rep kače in nastavi nov kazalec na rep
                     addr_readX <= snake_endx;
