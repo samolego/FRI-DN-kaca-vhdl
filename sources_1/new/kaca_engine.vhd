@@ -33,6 +33,7 @@ architecture Behavioral of kaca_engine is
     signal newy : integer range -1 to height - 1;
 
     signal iscore : natural := 0;
+    signal igame_over : std_logic := '0';
     signal has_sadje : std_logic := '0';
     signal ate_sadez : std_logic := '0';
 
@@ -73,6 +74,7 @@ architecture Behavioral of kaca_engine is
 begin
 
     score <= iscore;
+    game_over <= igame_over;
     ismer_premika <= allow_snake_move & smer_premika;
 
     -- Stanje igre
@@ -99,9 +101,7 @@ begin
         if rising_edge(CLK100MHZ) then
             case (state) is
                 when END_GAME =>
-                    display_we <= '0';
-                    RAM_we <= '0';
-                    game_over <= '1';
+                    igame_over <= '1';
                 when CHECK_POS_0 =>
                     -- izracunaj novi koordinati glave kace
                     display_we <= '0';
@@ -125,8 +125,10 @@ begin
                     end case;
                     state <= CHECK_POS_1;
                 when CHECK_POS_1 =>
-                    -- preveri koordinate glave kace, ce bodo šle izven polja
-                    if (newx =- 1 and snake_startx = 0) or (newx = 1 and snake_startx = width - 1) or (newy =- 1 and snake_starty = 0) or (newy = 1 and snake_starty = height - 1) then
+                    if igame_over = '1' then
+                        state <= END_GAME;
+                    elsif (newx =- 1 and snake_startx = 0) or (newx = 1 and snake_startx = width - 1) or (newy =- 1 and snake_starty = 0) or (newy = 1 and snake_starty = height - 1) then
+                        -- preveri koordinate glave kace, ce bodo šle izven polja
                         state <= END_GAME;
                     elsif newx /= 0 or newy /= 0 then
                         -- izracunaj koordinate glave kace
@@ -153,7 +155,8 @@ begin
                     -- data_read mora biti prazen ali jabolko, sicer je konec
                     if data_read(2) = '1' then
                         -- zaleteli smo se v kaco
-                        state <= END_GAME;
+                        igame_over <= '1';
+                        state <= CHECK_POS_4;
                     else
                         -- ce je jabolko, povecaj rezultat
                         if data_read = "001" then
