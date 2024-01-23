@@ -76,5 +76,4 @@ Moduli
   * [x] z gumbi
   * [ ] z giroskopom
 * [x] - naključno generiranje sadežev @samolego
-* [x] - spriti so zrcaljeni preko x osi
-* [ ] - spriti so zrcaljeni preko y osi
+* [x] - spriti so zrcaljeni preko x in y osi
