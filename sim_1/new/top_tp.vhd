@@ -27,6 +27,10 @@ begin
      uut: entity work.top(Behavioral)
     port map(
         CLK100MHZ => clock,
+        BTNU => '0',
+        BTND => '0',
+        BTNL => '0',
+        BTNR => '1',
         CPU_RESETN => cpuR,
         -- signali za VGA
         VGA_HS => VGA_HS,

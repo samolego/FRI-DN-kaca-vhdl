@@ -16,6 +16,10 @@ entity top is
     port (
         CLK100MHZ : in std_logic;
         CPU_RESETN : in std_logic;
+        BTNU : in std_logic;
+        BTND : in std_logic;
+        BTNL : in std_logic;
+        BTNR : in std_logic;
         -- signali za VGA
         --SW         : in STD_LOGIC_VECTOR(0 downto 0);
         VGA_HS : out std_logic;
@@ -40,7 +44,7 @@ architecture Behavioral of top is
     -- vezan na giroskop (oz. gumbe)
     signal smer_premika : std_logic_vector(1 downto 0) := "00";
     -- na koliko urinih period se kaca premakne
-    constant SNAKE_MOVE_TIME : integer := 100_000_000;
+    constant SNAKE_MOVE_TIME : integer := 50_000_000;
     -- trenutni rezultat (tale je zgolj out signal, pravi score je v kaca_engine)
     signal score : natural := 0;
     -- signal ko je konec igre
@@ -92,6 +96,17 @@ begin
             clock => CLK100MHZ,
             reset => not CPU_RESETN,
             clock_enable => allow_snake_move
+        );
+
+    -- modul, ki nastavlja smer premikanja kace
+    kaca_premikalnik : entity work.kaca_premikalnik(Behavioral)
+        port map(
+            clk => CLK100MHZ,
+            BTNU => BTNU,
+            BTND => BTND,
+            BTNL => BTNL,
+            BTNR => BTNR,
+            smer_premika => smer_premika
         );
 
     -- ram katerega vsebina je enaka zaslonski sliki

@@ -66,14 +66,15 @@ Moduli
   * __izhodi__
     * 1-bitni pixel na X, Y koordinatah, podanih zgoraj
 
-### VPRAŠANJA ZA NEJCA
 
 ### Todo
+
 * [x] - score na 7 segmentni display
 * [ ] - start / end logika (recmo pritisneš knof in se začne) @samolego
     * ali želiva, da se ob pritisku na gumb igra resetira? To je namreč precej dela, ker je treba celoten ram zbrisat in vse nastavit nazaj na začetno stanje
 * [ ] - premikanje kače - TEŽAVE: dva modula pišeta na isti signal!
-  * [ ] z gumbi
+  * [x] z gumbi
   * [ ] z giroskopom
 * [x] - naključno generiranje sadežev @samolego
-* [ ] - spriti so zrcaljeni preko x in y osi
+* [x] - spriti so zrcaljeni preko x osi
+* [ ] - spriti so zrcaljeni preko y osi

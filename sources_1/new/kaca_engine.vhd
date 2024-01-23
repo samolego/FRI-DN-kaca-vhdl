@@ -23,7 +23,7 @@ architecture Behavioral of kaca_engine is
 
     signal snake_startx : integer range 0 to width - 1 := width / 2;
     signal snake_starty : integer range 0 to height - 1 := height / 2;
-    signal snake_endx : integer range 0 to width - 1 := width / 2;
+    signal snake_endx : integer range 0 to width - 1 := width / 2 - 1;
     signal snake_endy : integer range 0 to height - 1 := height / 2;
 
     signal old_smer_premika : std_logic_vector (1 downto 0);
@@ -34,6 +34,7 @@ architecture Behavioral of kaca_engine is
 
     signal iscore : natural := 0;
     signal has_sadje : std_logic := '0';
+    signal ate_sadez : std_logic := '0';
 
     signal addr_writeY : integer range 0 to height - 1;
     signal addr_writeX : integer range 0 to width - 1;
@@ -105,6 +106,7 @@ begin
                     -- izracunaj novi koordinati glave kace
                     display_we <= '0';
                     RAM_we <= '0';
+                    ate_sadez <= '0';
                     case ismer_premika is
                         when "100" => -- desno
                             newy <= 0;
@@ -128,7 +130,7 @@ begin
                     if (newx =- 1 and snake_startx = 0) or (newx = 1 and snake_startx = width - 1) or (newy =- 1 and snake_starty = 0) or (newy = 1 and snake_starty = height - 1) then
                         state <= END_GAME;
                     elsif newx /= 0 or newy /= 0 then
-                        -- izracunaj kooridnate glave kace
+                        -- izracunaj koordinate glave kace
                         newx <= snake_startx + newx;
                         newy <= snake_starty + newy;
 
@@ -150,17 +152,21 @@ begin
                     -- podatki pridejo na data_read
 
                     -- data_read mora biti prazen ali jabolko, sicer je konec
-                    if data_read /= "000" and data_read /= "001" then
+                    if data_read(2) = '1' then
+                        -- zaleteli smo se v kaco
                         state <= END_GAME;
                     else
                         -- ce je jabolko, povecaj rezultat
                         if data_read = "001" then
                             iscore <= iscore + 1;
                             has_sadje <= '0';
+                            ate_sadez <= '1';
+                            state <= DODAJ_SADEZ_0;
+                        else
+                            -- je potrebno zaradi prvega sadeza
+                            state <= CHECK_POS_4;
                         end if;
                     end if;
-
-                    state <= CHECK_POS_4;
                 when CHECK_POS_4 =>
                     if has_sadje = '1' then
                         state <= POPRAVI_STARO_GLAVO_0;
@@ -252,6 +258,12 @@ begin
                 when POCAKAJ_ZAPIS_NOVE_GLAVE =>
                     display_we <= '0';
                     RAM_we <= '0';
+
+                    if ate_sadez = '1' then
+                        state <= CHECK_POS_0;
+                    else
+                        state <= POPRAVI_STARI_REP_0;
+                    end if;
                     state <= POPRAVI_STARI_REP_0;
                 when POPRAVI_STARI_REP_0 =>
                     -- odstrani rep kače in nastavi nov kazalec na rep
@@ -261,17 +273,17 @@ begin
                     state <= POPRAVI_STARI_REP_1;
                 when POPRAVI_STARI_REP_1 =>
                     -- podatki pridejo na data_read
-                    case data_read is
-                        when "100" => -- desno
+                    case data_read(1 downto 0) is
+                        when "00" => -- desno
                             newy <= 0;
                             newx <= 1;
-                        when "101" => -- gor
+                        when "01" => -- gor
                             newx <= 0;
                             newy <= - 1;
-                        when "110" => -- levo
+                        when "10" => -- levo
                             newy <= 0;
                             newx <= - 1;
-                        when "111" => -- dol
+                        when "11" => -- dol
                             newx <= 0;
                             newy <= 1;
                         when others =>
@@ -286,19 +298,20 @@ begin
                     RAM_we <= '1';
 
                     -- sporoci za zapis sprite-a
-                    x_display <= snake_startx;
-                    y_display <= snake_starty;
+                    x_display <= snake_endx;
+                    y_display <= snake_endy;
                     sprite_ix <= "00000";
                     display_we <= '1';
-
-                    -- nastavi nov rep
-                    snake_endx <= snake_endx + newx;
-                    snake_endy <= snake_endy + newy;
 
                     state <= POCAKAJ_ZAPIS_STAREGA_REPA;
                 when POCAKAJ_ZAPIS_STAREGA_REPA =>
                     display_we <= '0';
                     RAM_we <= '0';
+
+                    -- nastavi nov rep
+                    snake_endx <= snake_endx + newx;
+                    snake_endy <= snake_endy + newy;
+
                     state <= ZAPISI_NOVI_REP_0;
                 when ZAPISI_NOVI_REP_0 =>
                     -- preberi smer novega repa (trupa)
