@@ -22,18 +22,24 @@ architecture Behavioral of top_tp is
     signal topAddr_readY : std_logic_vector (9 - 1 downto 0):= (others => '0');
     signal topAddr_readX : std_logic_vector (10 - 1 downto 0) := (others => '0'); --na za?etku prebere prvo vrstico
     --signal data_read : std_logic_vector (1 - 1 downto 0);
+    signal button : std_logic := '0';
     
 begin
      uut: entity work.top(Behavioral)
     port map(
         CLK100MHZ => clock,
+        BTNU => '0',
+        BTND => '0',
+        BTNL => button,
+        BTNR => not button,
         CPU_RESETN => cpuR,
         -- signali za VGA
         VGA_HS => VGA_HS,
         VGA_VS => VGA_VS,
         VGA_R => VGA_R,
         VGA_G => VGA_G,
-        VGA_B => VGA_B
+        VGA_B => VGA_B,
+        SIM => '1'
        );
        
      --simuliraj uro
@@ -56,6 +62,11 @@ begin
     --wait for 5*clock_period;
     
     --wait for  2*clock_period;
+    
+    wait for 10*clock_period;
+    button <= '1';
+    wait for 2*clock_period;
+    
     wait; -- wait forever
     end process;
     

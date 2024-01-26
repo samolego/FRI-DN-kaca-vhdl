@@ -6,6 +6,10 @@ entity top is
     port (
         CLK100MHZ : in std_logic;
         CPU_RESETN : in std_logic;
+        BTNU : in std_logic;
+        BTND : in std_logic;
+        BTNL : in std_logic;
+        BTNR : in std_logic;
         -- signali za VGA
         
         VGA_HS : out std_logic;
@@ -37,6 +41,7 @@ architecture Behavioral of top is
     -- ko je 1, se kaca lahko premakne
     signal allow_snake_move : std_logic := '0';
     -- smer premikanja kace (00 - desno, 01 - gor, 10 - levo, 11 - dol)
+    -- vezan na giroskop (oz. gumbe)
     signal smer_premika : std_logic_vector(1 downto 0) := "00";
     -- na koliko urinih period se kaca premakne
     constant SNAKE_MOVE_TIME : integer := 50_000_000;
@@ -50,7 +55,7 @@ architecture Behavioral of top is
     -- index sprita, ki naj se zapise (glej index2sprite.vhd)
     signal sprite_ix : std_logic_vector(4 downto 0) := "00000";
     -- ali dovoli zapis sprita
-    signal sprite_we : std_logic := '0';
+    signal display_we : std_logic := '0';
 
     --signali za display ram
     constant screen_width : integer := 640;
@@ -85,14 +90,13 @@ begin
         port map(
             smer_premika => smer_premika,
             CLK100MHZ => CLK100MHZ,
-            allow_snake_move => allow_snake_move,
-            --allow_snake_move => '0',
+            allow_snake_move => allow_snake_move or SIM,
             score => score,
             game_over => game_over,
             x_display => x_display,
             y_display => y_display,
             sprite_ix => sprite_ix,
-            display_we => sprite_we
+            display_we => display_we
         );
 
     -- modul, ki nastavi, kdaj se kaca lahko premakne
@@ -104,21 +108,34 @@ begin
             clock_enable => allow_snake_move
         );
 
+    -- modul, ki nastavlja smer premikanja kace
+    kaca_premikalnik : entity work.kaca_premikalnik(Behavioral)
+        port map(
+            clk => CLK100MHZ,
+            BTNU => BTNU,
+            BTND => BTND,
+            BTNL => BTNL,
+            BTNR => BTNR,
+            smer_premika => smer_premika
+        );
+
     -- ram katerega vsebina je enaka zaslonski sliki
     displayRam : entity work.framebuffer_RAM2(Behavioral)
         generic map(
             width => SIZE_X,
-            height => SIZE_Y
+            height => SIZE_Y,
+            screen_width => screen_width,
+            screen_height => screen_height
         )
         port map(
             clk => CLK100MHZ,
-            we => sprite_we,
-            addr_writeY => x_display,
-            addr_writeX => y_display,
+            display_we => display_we,
+            addr_writeY => y_display,
+            addr_writeX => x_display,
             addr_readY => topAddr_readY,
             addr_readX => topAddr_readX,
             sprite_idx2write => sprite_ix,
-            data_read => top_data_read
+            display_bit_read => top_data_read
         );
 
     vgaController : entity work.vgaController(Behavioral)
