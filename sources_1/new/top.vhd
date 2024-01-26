@@ -10,8 +10,7 @@ entity top is
         BTND : in std_logic;
         BTNL : in std_logic;
         BTNR : in std_logic;
-        -- signali za VGA
-        
+        -- signali za VGA     
         VGA_HS : out std_logic;
         VGA_VS : out std_logic;
         VGA_R : out std_logic_vector(3 downto 0);
@@ -25,21 +24,22 @@ entity top is
         ACL_MOSI       : out STD_LOGIC;
         ACL_MISO       : in STD_LOGIC;
         ACL_CSN        : out STD_LOGIC;
-        
+        -- generalni signali
         SW : in  std_logic_vector(15 downto 0); 
-        LED : out  std_logic_vector(15 downto 0) --:= (others => '0')
+        LED : out  std_logic_vector(15 downto 0) --:= (others => '0');
+        -- ce je simulacija aktivna
+        --SIM : in std_logic
     );
 end entity;
 
 architecture Behavioral of top is
-    signal negatedCPU_RESETN : std_logic;
     
     -- kaca_engine signali
     -- stevilo ploscic na zaslonu (spritov do dolzini in visini)
     constant SIZE_X : integer := 40;
     constant SIZE_Y : integer := 30;
     -- ko je 1, se kaca lahko premakne
-    signal allow_snake_move : std_logic := '0';
+    signal allow_snake_move : std_logic := '1';
     -- smer premikanja kace (00 - desno, 01 - gor, 10 - levo, 11 - dol)
     -- vezan na giroskop (oz. gumbe)
     signal smer_premika : std_logic_vector(1 downto 0) := "00";
@@ -77,9 +77,20 @@ architecture Behavioral of top is
     signal gor   : std_logic := '0'; 
     signal desno : std_logic := '0'; 
     signal dol   : std_logic := '0';
+    
+     --signali za sitni in neumni vivado
+    signal negatedCPU_RESETN : std_logic;
+    signal snakeMoveOrSim : std_logic;
+    signal smerLevo : std_logic;
+    signal smerDesno : std_logic;
+    signal smerGor : std_logic;
+    signal smerDol : std_logic;
+    
 begin
     
     negatedCPU_RESETN <= not CPU_RESETN;
+    
+    snakeMoveOrSim <= allow_snake_move;-- or SIM;
     
     -- motor igre
     kaca_engine : entity work.kaca_engine(Behavioral)
@@ -90,7 +101,7 @@ begin
         port map(
             smer_premika => smer_premika,
             CLK100MHZ => CLK100MHZ,
-            allow_snake_move => allow_snake_move or SIM,
+            allow_snake_move => snakeMoveOrSim,
             score => score,
             game_over => game_over,
             x_display => x_display,
@@ -109,13 +120,17 @@ begin
         );
 
     -- modul, ki nastavlja smer premikanja kace
+    smerGor <= BTNU or gor;
+    smerDol <= BTND or dol;
+    smerDesno <= BTNR or desno;
+    smerLevo <= BTNL or levo;
     kaca_premikalnik : entity work.kaca_premikalnik(Behavioral)
         port map(
             clk => CLK100MHZ,
-            BTNU => BTNU,
-            BTND => BTND,
-            BTNL => BTNL,
-            BTNR => BTNR,
+            BTNU => smerGor,
+            BTND => smerDol,
+            BTNL => smerLevo,
+            BTNR => smerDesno,
             smer_premika => smer_premika
         );
 
@@ -164,7 +179,7 @@ begin
             cathode => SEG,
             clock => CLK100MHZ,
             reset => negatedCPU_RESETN, --not CPU_RESETN,
-            value => GyroValBuffer --to_unsigned(integer(score), 32) --TKAJ MI JAVLJA NAPAKO PA POJMA NIMAM ZAKVA
+            value => to_unsigned(integer(score), 32) --GyroValBuffer --TUKAJ MI JAVLJA NAPAKO PA POJMA NIMAM ZAKVA
         );
     
     Gyro: entity work.gyro(Behavioral)
