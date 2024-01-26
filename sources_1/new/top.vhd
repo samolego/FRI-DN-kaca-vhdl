@@ -2,21 +2,12 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.NUMERIC_STD.all;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 entity top is
     port (
         CLK100MHZ : in std_logic;
         CPU_RESETN : in std_logic;
         -- signali za VGA
-        --SW         : in STD_LOGIC_VECTOR(0 downto 0);
+        
         VGA_HS : out std_logic;
         VGA_VS : out std_logic;
         VGA_R : out std_logic_vector(3 downto 0);
@@ -31,12 +22,14 @@ entity top is
         ACL_MISO       : in STD_LOGIC;
         ACL_CSN        : out STD_LOGIC;
         
-        SW : in  std_logic_vector(15 downto 0) := (others => '0'); 
-        LED : out  std_logic_vector(15 downto 0) := (others => '0')
+        SW : in  std_logic_vector(15 downto 0); 
+        LED : out  std_logic_vector(15 downto 0) --:= (others => '0')
     );
 end entity;
 
 architecture Behavioral of top is
+    signal negatedCPU_RESETN : std_logic;
+    
     -- kaca_engine signali
     -- stevilo ploscic na zaslonu (spritov do dolzini in visini)
     constant SIZE_X : integer := 40;
@@ -71,10 +64,18 @@ architecture Behavioral of top is
     signal top_data_read : std_logic := '0';
 
     --ledice in registri
-    signal SW_reg : std_logic_vector(15 downto 0); 
     signal LED_reg : std_logic_vector(15 downto 0);
+    
+    --signali za gyro
+    signal GyroValBuffer : unsigned(31 downto 0);
+    signal levo  : std_logic := '0'; 
+    signal gor   : std_logic := '0'; 
+    signal desno : std_logic := '0'; 
+    signal dol   : std_logic := '0';
 begin
-
+    
+    negatedCPU_RESETN <= not CPU_RESETN;
+    
     -- motor igre
     kaca_engine : entity work.kaca_engine(Behavioral)
         generic map(
@@ -99,7 +100,7 @@ begin
         generic map(limit => SNAKE_MOVE_TIME)
         port map(
             clock => CLK100MHZ,
-            reset => not CPU_RESETN,
+            reset => negatedCPU_RESETN, --not CPU_RESETN,
             clock_enable => allow_snake_move
         );
 
@@ -145,21 +146,28 @@ begin
             anode => AN,
             cathode => SEG,
             clock => CLK100MHZ,
-            reset => not CPU_RESETN,
-            value => to_unsigned(integer(score), 32)
+            reset => negatedCPU_RESETN, --not CPU_RESETN,
+            value => GyroValBuffer --to_unsigned(integer(score), 32) --TKAJ MI JAVLJA NAPAKO PA POJMA NIMAM ZAKVA
         );
     
     Gyro: entity work.gyro(Behavioral)
       port map (
       CLK100MHZ => CLK100MHZ,
-      CPU_RESETN => not CPU_RESETN,
-      SW => SW_REG,
-      LED => LED_REG,
+      CPU_RESETN => negatedCPU_RESETN, --not CPU_RESETN,
+      SW => SW,
+      LED => LED_reg,
       
       ACL_SCLK => ACL_SCLK,
       ACL_MOSI => ACL_MOSI,
       ACL_MISO => ACL_MISO,
-      ACL_CSN => ACL_CSN
+      ACL_CSN => ACL_CSN,
       -- PS2 interface signals ne uporbljamo
+      SevenSegVal => GyroValBuffer,
+      levo => levo,
+      desno => desno,
+      gor => gor,
+      dol => dol
       );
+      
+      LED <= (4=>desno, 0=>gor, 5=>levo, 1=>dol, others =>'0');
 end Behavioral;
