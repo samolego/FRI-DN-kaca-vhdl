@@ -31,7 +31,12 @@ architecture Behavioral of framebuffer_RAM2 is
     signal sprite_image_vector : std_logic_vector (0 to 255);
 begin
 
-    display_bit_read <= sprite_image_vector((addr_readY mod sprite_size) * sprite_size + addr_readX mod sprite_size);
+    get_display_bit : process(clk)
+    begin
+        if rising_edge(clk) then
+            display_bit_read <= sprite_image_vector((addr_readY mod sprite_size) * sprite_size + addr_readX mod sprite_size);
+        end if;
+    end process;
 
     index2sprite : entity work.index2sprite(Behavioral)
         port map(
