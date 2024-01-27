@@ -75,6 +75,7 @@ begin
 
     score <= iscore;
     game_over <= igame_over;
+    ismer_premika <= allow_snake_move & smer_premika;
 
     -- Stanje igre
     ram : entity work.generic_RAM(Behavioral)
