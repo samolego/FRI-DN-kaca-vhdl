@@ -63,7 +63,7 @@ begin
     
     
     prescalerForAnodes: entity work.prescaler(Behavioral) 
-    generic map(limit => 500) --od kje 500?
+    generic map(limit => 5000) --od kje 500?
     port map(
         clock => clock,
         reset => reset,

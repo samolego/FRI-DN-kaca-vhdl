@@ -40,7 +40,7 @@ architecture Behavioral of top is
     constant SIZE_X : integer := 40;
     constant SIZE_Y : integer := 30;
     -- ko je 1, se kaca lahko premakne
-    signal allow_snake_move : std_logic := '1';
+    signal allow_snake_move : std_logic := '0';
     -- smer premikanja kace (00 - desno, 01 - gor, 10 - levo, 11 - dol)
     -- vezan na giroskop (oz. gumbe)
     signal smer_premika : std_logic_vector(1 downto 0) := "00";
