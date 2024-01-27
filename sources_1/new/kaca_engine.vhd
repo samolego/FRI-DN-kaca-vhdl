@@ -26,8 +26,8 @@ architecture Behavioral of kaca_engine is
     signal snake_endx : integer range 0 to width - 1 := width / 2 - 1;
     signal snake_endy : integer range 0 to height - 1 := height / 2;
 
-    signal old_smer_premika : std_logic_vector (1 downto 0);
-    signal ismer_premika : std_logic_vector (2 downto 0);
+    signal old_smer_premika : std_logic_vector (1 downto 0) := "00";
+    signal ismer_premika : std_logic_vector (2 downto 0) := "000";
 
     signal newx : integer range -1 to width - 1;
     signal newy : integer range -1 to height - 1;
@@ -46,7 +46,6 @@ architecture Behavioral of kaca_engine is
     signal RAM_we : std_logic := '0';
 
     type game_state is (
-        CHECK_DIRECTION,
         CHECK_POS_0,
         CHECK_POS_1,
         CHECK_POS_2,
@@ -102,14 +101,6 @@ begin
             case (state) is
                 when END_GAME =>
                     igame_over <= '1';
-                when CHECK_DIRECTION =>
-                    if (old_smer_premika = "00" and smer_premika = "10") or (old_smer_premika = "10" and smer_premika = "00") or (old_smer_premika = "01" and smer_premika = "11") or (old_smer_premika = "11" and smer_premika = "01") then
-                        -- ne dovoli obrata za 180 stopinj
-                        ismer_premika <= allow_snake_move & old_smer_premika;
-                    else
-                        ismer_premika <= allow_snake_move & smer_premika;
-                    end if;
-                    state <= CHECK_POS_0;
                 when CHECK_POS_0 =>
                     -- izracunaj novi koordinati glave kace
                     case ismer_premika is
@@ -144,7 +135,7 @@ begin
                         state <= CHECK_POS_2;
                     else
                         -- nismo se premaknili
-                        state <= CHECK_DIRECTION;
+                        state <= CHECK_POS_0;
                     end if;
                 when CHECK_POS_2 =>
                     -- preveri pomnilniško lokacijo, ce tam obstaja
@@ -275,7 +266,7 @@ begin
                     if ate_sadez = '1' then
                         -- ce si pojedel sadez, ne odstrani starega repa (podaljsaj kaco)
                         ate_sadez <= '0';
-                        state <= CHECK_DIRECTION;
+                        state <= CHECK_POS_0;
                     else
                         state <= POPRAVI_STARI_REP_0;
                     end if;
@@ -343,7 +334,7 @@ begin
                     state <= POCAKAJ_ZAPIS_NOVEGA_REPA;
                 when POCAKAJ_ZAPIS_NOVEGA_REPA =>
                     display_we <= '0';
-                    state <= CHECK_DIRECTION;
+                    state <= CHECK_POS_0;
             end case;
         end if;
     end process;
