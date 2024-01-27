@@ -2,16 +2,6 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.NUMERIC_STD.all;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
---tkrotk
-
 entity top is
     port (
         CLK100MHZ : in std_logic;
@@ -20,8 +10,8 @@ entity top is
         BTND : in std_logic;
         BTNL : in std_logic;
         BTNR : in std_logic;
-        -- signali za VGA
-        --SW         : in STD_LOGIC_VECTOR(0 downto 0);
+        BTNC : in std_logic;
+        -- signali za VGA     
         VGA_HS : out std_logic;
         VGA_VS : out std_logic;
         VGA_R : out std_logic_vector(3 downto 0);
@@ -30,12 +20,21 @@ entity top is
         -- signali za 7 segmentni zaslon
         SEG : out unsigned(6 downto 0);
         AN : out unsigned(7 downto 0);
+        -- signali z gyro
+        ACL_SCLK       : out STD_LOGIC;
+        ACL_MOSI       : out STD_LOGIC;
+        ACL_MISO       : in STD_LOGIC;
+        ACL_CSN        : out STD_LOGIC;
+        -- generalni signali
+        SW : in  std_logic_vector(15 downto 0); 
+        LED : out  std_logic_vector(15 downto 0) --:= (others => '0');
         -- ce je simulacija aktivna
-        SIM : in std_logic
+        --SIM : in std_logic
     );
 end entity;
 
 architecture Behavioral of top is
+    
     -- kaca_engine signali
     -- stevilo ploscic na zaslonu (spritov do dolzini in visini)
     constant SIZE_X : integer := 40;
@@ -70,8 +69,31 @@ architecture Behavioral of top is
     signal topAddr_readX : integer range 0 to screen_width - 1 := 0; --na zacetku prebere prvo vrstico
     signal top_data_read : std_logic := '0';
 
+    --ledice in registri
+    signal LED_reg : std_logic_vector(15 downto 0);
+    
+    --signali za gyro
+    signal GyroValBuffer : unsigned(31 downto 0);
+    signal levo  : std_logic := '0'; 
+    signal gor   : std_logic := '0'; 
+    signal desno : std_logic := '0'; 
+    signal dol   : std_logic := '0';
+    
+     --signali za sitni in neumni vivado
+    signal CPU_RESET : std_logic;
+    signal snakeMoveOrSim : std_logic;
+    signal smerLevo : std_logic;
+    signal smerDesno : std_logic;
+    signal smerGor : std_logic;
+    signal smerDol : std_logic;
+    signal ceOneSec: std_logic;
+    
 begin
-
+    -- trenutno bo reset z klikom na BTNC
+    CPU_RESET <= BTNC; --not CPU_RESETN;
+    
+    snakeMoveOrSim <= allow_snake_move;-- or SIM;
+    
     -- motor igre
     kaca_engine : entity work.kaca_engine(Behavioral)
         generic map(
@@ -81,7 +103,7 @@ begin
         port map(
             smer_premika => smer_premika,
             CLK100MHZ => CLK100MHZ,
-            allow_snake_move => allow_snake_move or SIM,
+            allow_snake_move => snakeMoveOrSim,
             score => score,
             game_over => game_over,
             x_display => x_display,
@@ -94,19 +116,24 @@ begin
     snake_move_prescaler : entity work.prescaler(Behavioral)
         generic map(limit => SNAKE_MOVE_TIME)
         port map(
+            --mogoce na switch fast and slow premikanje ka?e?
             clock => CLK100MHZ,
-            reset => not CPU_RESETN,
+            reset => CPU_RESET, --not CPU_RESETN,
             clock_enable => allow_snake_move
         );
 
     -- modul, ki nastavlja smer premikanja kace
+    smerGor <= BTNU or gor;
+    smerDol <= BTND or dol;
+    smerDesno <= BTNR or desno;
+    smerLevo <= BTNL or levo;
     kaca_premikalnik : entity work.kaca_premikalnik(Behavioral)
         port map(
             clk => CLK100MHZ,
-            BTNU => BTNU,
-            BTND => BTND,
-            BTNL => BTNL,
-            BTNR => BTNR,
+            BTNU => smerGor,
+            BTND => smerDol,
+            BTNL => smerLevo,
+            BTNR => smerDesno,
             smer_premika => smer_premika
         );
 
@@ -137,7 +164,7 @@ begin
         )
         port map(
             CLK100MHZ => CLK100MHZ,
-            CPU_RESETN => CPU_RESETN,
+            CPU_RESET => CPU_RESET,
             VGA_HS => VGA_HS,
             VGA_VS => VGA_VS,
             VGA_R => VGA_R,
@@ -154,8 +181,29 @@ begin
             anode => AN,
             cathode => SEG,
             clock => CLK100MHZ,
-            reset => not CPU_RESETN,
-            value => to_unsigned(integer(score), 32)
+            reset => CPU_RESET, --not CPU_RESETN,
+            value => to_unsigned(integer(score), 32), --GyroValBuffer --TUKAJ MI JAVLJA NAPAKO PA POJMA NIMAM ZAKVA
+            game_over => game_over
         );
-
+    
+    Gyro: entity work.gyro(Behavioral)
+      port map (
+      CLK100MHZ => CLK100MHZ,
+      CPU_RESETN => CPU_RESET, --not CPU_RESETN,
+      SW => SW,
+      LED => LED_reg,
+      
+      ACL_SCLK => ACL_SCLK,
+      ACL_MOSI => ACL_MOSI,
+      ACL_MISO => ACL_MISO,
+      ACL_CSN => ACL_CSN,
+      -- PS2 interface signals ne uporbljamo
+      SevenSegVal => GyroValBuffer,
+      levo => levo,
+      desno => desno,
+      gor => gor,
+      dol => dol
+      );
+      
+      LED <= (4=>desno, 0=>gor, 5=>levo, 1=>dol, 15=>game_over, others =>'0');
 end Behavioral;
