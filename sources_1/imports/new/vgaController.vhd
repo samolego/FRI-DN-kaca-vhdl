@@ -53,7 +53,7 @@ signal vga_row    : integer range 0 to 479;
 --signal getNewData: std_logic := '1';
 --signal presc : natural range 0 to 4 := 0;
 --signal bitInRowCount : natural range 0 to 15;
-signal bitVector: std_logic_vector(3 downto 0) := "0000";
+signal bitVector: std_logic_vector(3 downto 0); -- := "0000";
 
     
 begin
@@ -87,14 +87,19 @@ begin
     ram_addr_readY <= vga_row; 
     ram_addr_readX <= vga_column; 
     
+    bitVector <= (others => data_read);
+                    
     process (display_area, vga_column, data_read)
     begin
          if display_area='1' then
-                bitVector <= (others => data_read);
                 VGA_R <= bitVector;
                 VGA_G <= bitVector;
                 VGA_B <= bitVector;
-          end if;
+         else
+                VGA_R <= "0000";
+                VGA_G <= "0000";
+                VGA_B <= "0000";
+         end if;
     end process;
 --            -- v rowToDisplay zapi�emo novo vrstico
 --            if getNewData = '1' then

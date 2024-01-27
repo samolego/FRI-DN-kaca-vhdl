@@ -30,7 +30,7 @@ architecture Behavioral of framebuffer_RAM2 is
     signal read_sprite_idx : std_logic_vector (4 downto 0);
     signal sprite_image_vector : std_logic_vector (0 to 255);
 begin
-
+    --asinhrono branje (enega bita)
     display_bit_read <= sprite_image_vector((addr_readY mod sprite_size) * sprite_size + addr_readX mod sprite_size);
 
     index2sprite : entity work.index2sprite(Behavioral)
@@ -43,7 +43,8 @@ begin
         generic map(
             width => width,
             height => height,
-            word_size => 5
+            word_size => 5,
+            default_value => '0'
         )
         port map(
             clk => clk,

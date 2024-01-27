@@ -67,7 +67,7 @@ architecture Behavioral of top is
 
     signal topAddr_readY : integer range 0 to screen_height - 1 := 0;
     signal topAddr_readX : integer range 0 to screen_width - 1 := 0; --na zacetku prebere prvo vrstico
-    signal top_data_read : std_logic := '0';
+    signal top_data_read : std_logic; -- := '0';
 
     --ledice in registri
     signal LED_reg : std_logic_vector(15 downto 0);
@@ -205,5 +205,6 @@ begin
       dol => dol
       );
       
-      LED <= (4=>desno, 0=>gor, 5=>levo, 1=>dol, 15=>game_over, others =>'0');
+      --ledice za prikaz signalov
+      LED <= (4=>desno, 0=>gor, 5=>levo, 1=>dol, 13|12|11|10|9=>game_over, others =>'0');
 end Behavioral;
