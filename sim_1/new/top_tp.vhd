@@ -3,7 +3,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
+use IEEE.NUMERIC_STD.all;
 
 entity top_tp is
 --  Port ( );
@@ -24,6 +24,17 @@ architecture Behavioral of top_tp is
     --signal data_read : std_logic_vector (1 - 1 downto 0);
     signal button : std_logic := '0';
     
+    signal SEG : unsigned(6 downto 0);
+    signal AN : unsigned(7 downto 0);
+        -- signali z gyro
+    signal ACL_SCLK : STD_LOGIC;
+    signal    ACL_MOSI       :  STD_LOGIC;
+     signal   ACL_MISO       : STD_LOGIC;
+     signal   ACL_CSN        :  STD_LOGIC;
+        -- generalni signali
+     signal   SW :   std_logic_vector(15 downto 0); 
+      signal  LED :  std_logic_vector(15 downto 0);
+    
 begin
      uut: entity work.top(Behavioral)
     port map(
@@ -32,6 +43,7 @@ begin
         BTND => '0',
         BTNL => button,
         BTNR => not button,
+        BTNC => '0',
         CPU_RESETN => cpuR,
         -- signali za VGA
         VGA_HS => VGA_HS,
@@ -39,7 +51,17 @@ begin
         VGA_R => VGA_R,
         VGA_G => VGA_G,
         VGA_B => VGA_B,
-        SIM => '1'
+ --       SIM => '1'
+        SEG => SEG,
+        AN => AN,
+        -- signali z gyro
+        ACL_SCLK => ACL_SCLK,
+        ACL_MOSI => ACL_MOSI, 
+        ACL_MISO => ACL_MISO,
+        ACL_CSN  => ACL_CSN,
+        -- generalni signali
+        SW => SW, 
+        LED => LED
        );
        
      --simuliraj uro
