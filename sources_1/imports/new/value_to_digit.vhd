@@ -39,7 +39,8 @@ entity value_to_digit is
   Port (
     anode: in unsigned(7 downto 0);
     value: in unsigned(31 downto 0);
-    digit: out unsigned(3 downto 0)
+    digit: out unsigned(3 downto 0);
+    characterCoded: out std_logic
   );
 end entity;
 
@@ -74,5 +75,18 @@ begin
     digitmp <= value srl sc;
     digit <= digitmp(3 downto 0);
 
+-- moja resitev (FILIP)
+--    index <=   0  when anode(0) = '0' else
+--              4  when anode(1) = '0' else
+--              8  when anode(2) = '0' else
+--              12 when anode(3) = '0' else
+--              16 when anode(4) = '0' else
+--              20 when anode(5) = '0' else
+--              24 when anode(6) = '0' else
+--              28; --when antena(7) = '0' 
+--    digit <= value(index+3 downto index);
+
+    --signal, ki bo povedal da se nahajamo v zadnjih 4ih stevkah
+    characterCoded <= '1' when anode(4) = '0' or anode(5) = '0' or anode(6) = '0' or anode(7) = '0' else '0';
 
 end Behavioral;

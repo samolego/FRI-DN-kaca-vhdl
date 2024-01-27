@@ -16,7 +16,7 @@ entity vgaController is
           dispRam_word_size : integer
           );
     Port ( CLK100MHZ : in STD_LOGIC;
-           CPU_RESETN : in STD_LOGIC;
+           CPU_RESET : in STD_LOGIC;
            --data       : in STD_LOGIC_VECTOR(255 downto 0);
            VGA_HS : out STD_LOGIC;
            VGA_VS : out STD_LOGIC;
@@ -57,13 +57,11 @@ signal bitVector: std_logic_vector(3 downto 0) := "0000";
 
     
 begin
-    rst <= not CPU_RESETN;
-    
     -- Povezovanje komponent: modula hsync in vsync
     hsync: entity work.hsync
     port map(
         clock => CLK100MHZ, 
-        reset => rst,
+        reset => CPU_RESET,
         clock_enable => CE,
         display_area => display_area_h,
         column => vga_column,
@@ -73,7 +71,7 @@ begin
     vsync: entity work.vsync
     port map(
         clock => CLK100MHZ, 
-        reset => rst,
+        reset => CPU_RESET,
         clock_enable => CE,
         display_area => display_area_v,
         row => vga_row, 

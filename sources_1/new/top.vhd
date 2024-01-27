@@ -10,6 +10,7 @@ entity top is
         BTND : in std_logic;
         BTNL : in std_logic;
         BTNR : in std_logic;
+        BTNC : in std_logic;
         -- signali za VGA     
         VGA_HS : out std_logic;
         VGA_VS : out std_logic;
@@ -79,16 +80,17 @@ architecture Behavioral of top is
     signal dol   : std_logic := '0';
     
      --signali za sitni in neumni vivado
-    signal negatedCPU_RESETN : std_logic;
+    signal CPU_RESET : std_logic;
     signal snakeMoveOrSim : std_logic;
     signal smerLevo : std_logic;
     signal smerDesno : std_logic;
     signal smerGor : std_logic;
     signal smerDol : std_logic;
+    signal ceOneSec: std_logic;
     
 begin
-    
-    negatedCPU_RESETN <= not CPU_RESETN;
+    -- trenutno bo reset z klikom na BTNC
+    CPU_RESET <= BTNC; --not CPU_RESETN;
     
     snakeMoveOrSim <= allow_snake_move;-- or SIM;
     
@@ -114,8 +116,9 @@ begin
     snake_move_prescaler : entity work.prescaler(Behavioral)
         generic map(limit => SNAKE_MOVE_TIME)
         port map(
+            --mogoce na switch fast and slow premikanje ka?e?
             clock => CLK100MHZ,
-            reset => negatedCPU_RESETN, --not CPU_RESETN,
+            reset => CPU_RESET, --not CPU_RESETN,
             clock_enable => allow_snake_move
         );
 
@@ -161,7 +164,7 @@ begin
         )
         port map(
             CLK100MHZ => CLK100MHZ,
-            CPU_RESETN => CPU_RESETN,
+            CPU_RESET => CPU_RESET,
             VGA_HS => VGA_HS,
             VGA_VS => VGA_VS,
             VGA_R => VGA_R,
@@ -178,14 +181,15 @@ begin
             anode => AN,
             cathode => SEG,
             clock => CLK100MHZ,
-            reset => negatedCPU_RESETN, --not CPU_RESETN,
-            value => to_unsigned(integer(score), 32) --GyroValBuffer --TUKAJ MI JAVLJA NAPAKO PA POJMA NIMAM ZAKVA
+            reset => CPU_RESET, --not CPU_RESETN,
+            value => to_unsigned(integer(score), 32), --GyroValBuffer --TUKAJ MI JAVLJA NAPAKO PA POJMA NIMAM ZAKVA
+            game_over => game_over
         );
     
     Gyro: entity work.gyro(Behavioral)
       port map (
       CLK100MHZ => CLK100MHZ,
-      CPU_RESETN => negatedCPU_RESETN, --not CPU_RESETN,
+      CPU_RESETN => CPU_RESET, --not CPU_RESETN,
       SW => SW,
       LED => LED_reg,
       
@@ -201,5 +205,5 @@ begin
       dol => dol
       );
       
-      LED <= (4=>desno, 0=>gor, 5=>levo, 1=>dol, others =>'0');
+      LED <= (4=>desno, 0=>gor, 5=>levo, 1=>dol, 15=>game_over, others =>'0');
 end Behavioral;
