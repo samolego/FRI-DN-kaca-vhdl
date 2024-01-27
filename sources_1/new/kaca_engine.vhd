@@ -26,8 +26,8 @@ architecture Behavioral of kaca_engine is
     signal snake_endx : integer range 0 to width - 1 := width / 2 - 1;
     signal snake_endy : integer range 0 to height - 1 := height / 2;
 
-    signal old_smer_premika : std_logic_vector (1 downto 0) := "00";
-    signal ismer_premika : std_logic_vector (2 downto 0) := "000";
+    signal old_smer_premika : std_logic_vector (1 downto 0);
+    signal ismer_premika : std_logic_vector (2 downto 0);
 
     signal newx : integer range -1 to width - 1;
     signal newy : integer range -1 to height - 1;
@@ -75,6 +75,7 @@ begin
 
     score <= iscore;
     game_over <= igame_over;
+    ismer_premika <= allow_snake_move & smer_premika;
 
     -- Stanje igre
     ram : entity work.generic_RAM(Behavioral)
@@ -102,6 +103,8 @@ begin
                 when END_GAME =>
                     igame_over <= '1';
                 when CHECK_POS_0 =>
+                    display_we <= '0';
+                    RAM_we <= '0';
                     -- izracunaj novi koordinati glave kace
                     case ismer_premika is
                         when "100" => -- desno
