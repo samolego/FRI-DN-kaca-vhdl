@@ -67,14 +67,18 @@ begin
     port map(
         clock => clock,
         reset => reset,
+        firstGear => '0',
+        secondGear => '0',
         clock_enable => ce
     );
     
     prescalerOneSec: entity work.prescaler(Behavioral)
     generic map (limit => oneSecond)--ze po defaultu na eno sekundo
     port map (
-        clock        => clock,
-        reset        => reset,
+        clock => clock,
+        reset => reset,
+        firstGear => '0',
+        secondGear => '0',
         clock_enable => ceOneSec
     );
     

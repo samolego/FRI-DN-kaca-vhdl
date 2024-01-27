@@ -6,7 +6,7 @@ entity gyro is
       Port (
       CLK100MHZ : in std_logic;
       CPU_RESETN : in STD_LOGIC;
-      SW : in  std_logic_vector(15 downto 0); 
+--      SW : in  std_logic_vector(15 downto 0); 
       LED : out  std_logic_vector(15 downto 0);
       
       ACL_SCLK           : out STD_LOGIC;
@@ -79,7 +79,7 @@ begin
    accel_X_val <= resize(ax, 32);
    ay <= unsigned(ACCEL_Y);
    accel_Y_val <= resize(ay, 32);
-   SevenSegVal <= accel_X_val when SW(0) = '1' else accel_Y_val;
+--   SevenSegVal <= accel_X_val when SW(0) = '1' else accel_Y_val;
    
    --prikaz vrednosti gyrota na ledicah
 --   LED <= resize(ACCEL_X, 16); --when SW(0) = '1' else resize(ACCEL_Y, 16);
