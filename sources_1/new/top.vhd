@@ -109,7 +109,8 @@ begin
             x_display => x_display,
             y_display => y_display,
             sprite_ix => sprite_ix,
-            display_we => display_we
+            display_we => display_we,
+            reset => CPU_RESET
         );
 
     -- modul, ki nastavi, kdaj se kaca lahko premakne
