@@ -81,19 +81,21 @@ architecture Behavioral of top is
     
      --signali za sitni in neumni vivado
     signal CPU_RESET : std_logic;
-    signal snakeMoveOrSim : std_logic;
     signal smerLevo : std_logic;
     signal smerDesno : std_logic;
     signal smerGor : std_logic;
     signal smerDol : std_logic;
     signal ceOneSec: std_logic;
+    signal play : std_logic := '1';
     
 begin
     -- trenutno bo reset z klikom na BTNC
     CPU_RESET <= BTNC; --not CPU_RESETN;
     
-    snakeMoveOrSim <= allow_snake_move;-- or SIM;
-    
+    --ledice za prikaz signalov
+    LED <= (2=>desno, 0=>gor, 3=>levo, 1=>dol, 13|12|11|10|9=>game_over, 14=>SW(14), 15=>SW(15), 4|5|6|7|8=> not play, others =>'0');
+      
+    play <= not SW(0);
     -- motor igre
     kaca_engine : entity work.kaca_engine(Behavioral)
         generic map(
@@ -103,7 +105,7 @@ begin
         port map(
             smer_premika => smer_premika,
             CLK100MHZ => CLK100MHZ,
-            allow_snake_move => snakeMoveOrSim,
+            allow_snake_move => allow_snake_move and play,
             score => score,
             game_over => game_over,
             x_display => x_display,
@@ -114,11 +116,13 @@ begin
 
     -- modul, ki nastavi, kdaj se kaca lahko premakne
     snake_move_prescaler : entity work.prescaler(Behavioral)
-        generic map(limit => SNAKE_MOVE_TIME)
+        generic map(limit => SNAKE_MOVE_TIME )
         port map(
             --mogoce na switch fast and slow premikanje ka?e?
             clock => CLK100MHZ,
             reset => CPU_RESET, --not CPU_RESETN,
+            firstGear => SW(15),
+            secondGear => SW(14),
             clock_enable => allow_snake_move
         );
 
@@ -190,7 +194,7 @@ begin
       port map (
       CLK100MHZ => CLK100MHZ,
       CPU_RESETN => CPU_RESET, --not CPU_RESETN,
-      SW => SW,
+--      SW => SW,
       LED => LED_reg,
       
       ACL_SCLK => ACL_SCLK,
@@ -205,6 +209,4 @@ begin
       dol => dol
       );
       
-      --ledice za prikaz signalov
-      LED <= (4=>desno, 0=>gor, 5=>levo, 1=>dol, 13|12|11|10|9=>game_over, others =>'0');
 end Behavioral;
