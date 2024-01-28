@@ -21,20 +21,20 @@ entity top is
         SEG : out unsigned(6 downto 0);
         AN : out unsigned(7 downto 0);
         -- signali z gyro
-        ACL_SCLK       : out STD_LOGIC;
-        ACL_MOSI       : out STD_LOGIC;
-        ACL_MISO       : in STD_LOGIC;
-        ACL_CSN        : out STD_LOGIC;
+        ACL_SCLK : out std_logic;
+        ACL_MOSI : out std_logic;
+        ACL_MISO : in std_logic;
+        ACL_CSN : out std_logic;
         -- generalni signali
-        SW : in  std_logic_vector(15 downto 0); 
-        LED : out  std_logic_vector(15 downto 0) --:= (others => '0');
+        SW : in std_logic_vector(15 downto 0);
+        LED : out std_logic_vector(15 downto 0) --:= (others => '0');
         -- ce je simulacija aktivna
         --SIM : in std_logic
     );
 end entity;
 
 architecture Behavioral of top is
-    
+
     -- kaca_engine signali
     -- stevilo ploscic na zaslonu (spritov do dolzini in visini)
     constant SIZE_X : integer := 40;
@@ -58,6 +58,9 @@ architecture Behavioral of top is
     -- ali dovoli zapis sprita
     signal display_we : std_logic := '0';
 
+    -- za reseting ram-a
+    signal done_reset : std_logic := '1';
+
     --signali za display ram
     constant screen_width : integer := 640;
     constant screen_height : integer := 480;
@@ -71,29 +74,29 @@ architecture Behavioral of top is
 
     --ledice in registri
     signal LED_reg : std_logic_vector(15 downto 0);
-    
+
     --signali za gyro
     signal GyroValBuffer : unsigned(31 downto 0);
-    signal levo  : std_logic := '0'; 
-    signal gor   : std_logic := '0'; 
-    signal desno : std_logic := '0'; 
-    signal dol   : std_logic := '0';
-    
-     --signali za sitni in neumni vivado
+    signal levo : std_logic := '0';
+    signal gor : std_logic := '0';
+    signal desno : std_logic := '0';
+    signal dol : std_logic := '0';
+
+    --signali za sitni in neumni vivado
     signal CPU_RESET : std_logic;
     signal snakeMoveOrSim : std_logic;
     signal smerLevo : std_logic;
     signal smerDesno : std_logic;
     signal smerGor : std_logic;
     signal smerDol : std_logic;
-    signal ceOneSec: std_logic;
-    
+    signal ceOneSec : std_logic;
+
 begin
     -- trenutno bo reset z klikom na BTNC
     CPU_RESET <= BTNC; --not CPU_RESETN;
-    
+
     snakeMoveOrSim <= allow_snake_move;-- or SIM;
-    
+
     -- motor igre
     kaca_engine : entity work.kaca_engine(Behavioral)
         generic map(
@@ -104,6 +107,7 @@ begin
             smer_premika => smer_premika,
             CLK100MHZ => CLK100MHZ,
             allow_snake_move => snakeMoveOrSim,
+            done_reset => done_reset,
             score => score,
             game_over => game_over,
             x_display => x_display,
@@ -149,6 +153,8 @@ begin
         port map(
             clk => CLK100MHZ,
             display_we => display_we,
+            reset => CPU_RESET,
+            done_reset => done_reset,
             addr_writeY => y_display,
             addr_writeX => x_display,
             addr_readY => topAddr_readY,
@@ -186,26 +192,26 @@ begin
             value => to_unsigned(integer(score), 32), --GyroValBuffer --TUKAJ MI JAVLJA NAPAKO PA POJMA NIMAM ZAKVA
             game_over => game_over
         );
-    
-    Gyro: entity work.gyro(Behavioral)
-      port map (
-      CLK100MHZ => CLK100MHZ,
-      CPU_RESETN => CPU_RESET, --not CPU_RESETN,
-      SW => SW,
-      LED => LED_reg,
-      
-      ACL_SCLK => ACL_SCLK,
-      ACL_MOSI => ACL_MOSI,
-      ACL_MISO => ACL_MISO,
-      ACL_CSN => ACL_CSN,
-      -- PS2 interface signals ne uporbljamo
-      SevenSegVal => GyroValBuffer,
-      levo => levo,
-      desno => desno,
-      gor => gor,
-      dol => dol
-      );
-      
-      --ledice za prikaz signalov
-      LED <= (4=>desno, 0=>gor, 5=>levo, 1=>dol, 13|12|11|10|9=>game_over, others =>'0');
+
+    Gyro : entity work.gyro(Behavioral)
+        port map(
+            CLK100MHZ => CLK100MHZ,
+            CPU_RESETN => CPU_RESET, --not CPU_RESETN,
+            SW => SW,
+            LED => LED_reg,
+
+            ACL_SCLK => ACL_SCLK,
+            ACL_MOSI => ACL_MOSI,
+            ACL_MISO => ACL_MISO,
+            ACL_CSN => ACL_CSN,
+            -- PS2 interface signals ne uporbljamo
+            SevenSegVal => GyroValBuffer,
+            levo => levo,
+            desno => desno,
+            gor => gor,
+            dol => dol
+        );
+
+    --ledice za prikaz signalov
+    LED <= (4 => desno, 0 => gor, 5 => levo, 1 => dol, 13 | 12 | 11 | 10 | 9 => game_over, others => '0');
 end Behavioral;

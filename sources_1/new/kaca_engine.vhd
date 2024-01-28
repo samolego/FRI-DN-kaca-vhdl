@@ -10,6 +10,7 @@ entity kaca_engine is
         smer_premika : in std_logic_vector (1 downto 0);
         CLK100MHZ : in std_logic;
         allow_snake_move : in std_logic;
+        done_reset : in std_logic;
         reset : in std_logic;
         score : out natural;
         x_display : out integer range 0 to width - 1;
@@ -26,8 +27,6 @@ architecture Behavioral of kaca_engine is
     constant csnake_endx : integer := width / 2 - 1;
     constant csnake_starty : integer := height / 2;
     constant csnake_endy : integer := csnake_starty;
-
-
     signal snake_startx : integer range 0 to width - 1 := csnake_startx;
     signal snake_starty : integer range 0 to height - 1 := csnake_starty;
     signal snake_endx : integer range 0 to width - 1 := csnake_endx;
@@ -79,8 +78,7 @@ architecture Behavioral of kaca_engine is
 
     signal state : game_state := CHECK_POS_0;
 
-    signal rst_x : integer range 0 to width - 1 := 0;
-    signal rst_y : integer range 0 to height - 1 := 0;
+    signal done_reset_gr : std_logic := '1';
 
 begin
 
@@ -97,6 +95,8 @@ begin
         )
         port map(
             clk => CLK100MHZ,
+            reset => reset,
+            done_reset => done_reset_gr,
             we => RAM_we,
             addr_writeY => addr_writeY,
             addr_writeX => addr_writeX,
@@ -121,30 +121,15 @@ begin
                 snake_endx <= csnake_endx;
                 snake_endy <= csnake_endy;
 
-                rst_x <= 0;
-                rst_y <= 0;
-                
                 -- clear RAM
                 state <= RESET_GAME;
             else
                 case (state) is
                     when RESET_GAME =>
                         -- clear RAM
-                        addr_writeX <= rst_x;
-                        addr_writeY <= rst_y;
-                        data_write <= "000";
-                        RAM_we <= '1';
-
-                        if rst_x + 1 = width then
-                            rst_x <= 0;
-
-                            if rst_y + 1= height then
-                                state <= CHECK_POS_0;
-                            else
-                                rst_y <= rst_y + 1;
-                            end if;
-                        else
-                            rst_x <= rst_x + 1;
+                        -- wait for done_reset
+                        if done_reset_gr = '1' and done_reset = '1' then
+                            state <= CHECK_POS_0;
                         end if;
                     when END_GAME =>
                         igame_over <= '1';

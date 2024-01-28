@@ -12,6 +12,8 @@ entity framebuffer_RAM2 is
     port (
         clk : in std_logic;
         display_we : in std_logic;
+        reset : in std_logic;
+        done_reset : out std_logic;
         -- pisanje - zapisemo index sprita, naslovi so okrnjeni (niso po pixlih, temvec po spritih)
         addr_writeY : in integer range 0 to height - 1;
         addr_writeX : in integer range 0 to width - 1;
@@ -49,6 +51,8 @@ begin
         port map(
             clk => clk,
             we => display_we,
+            reset => reset,
+            done_reset => done_reset,
             addr_writeY => addr_writeY,
             addr_writeX => addr_writeX,
             -- ko beremo, beremo po spritih (ne po pixlih), zato delimo s sprite_size
