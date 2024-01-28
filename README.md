@@ -71,7 +71,7 @@ Moduli
 
 * [x] - score na 7 segmentni display
 * [x] - game over - @Student-na-praksi
-* [x] - premikanje kače - TEŽAVE: dva modula pišeta na isti signal!
+* [x] - premikanje kače
   * [x] z gumbi
   * [x] z giroskopom
 * [x] - naključno generiranje sadežev @samolego

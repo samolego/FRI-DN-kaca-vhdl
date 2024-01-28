@@ -23,6 +23,8 @@ entity generic_RAM is
     );
     port (
         clk : in std_logic;
+        reset : in std_logic;
+        done_reset : out std_logic;
         -- writing
         we : in std_logic;
         addr_writeY : in integer range 0 to height - 1;
@@ -43,17 +45,46 @@ architecture Behavioral of generic_RAM is
     -- If you want to initialize RAM content, use this line instead:
     signal RAM : RAM_type := (others => (others => (others => default_value)));
 
+    type mode is (WRITE, RAM_RESET);
+
+    signal current_mode : mode := WRITE;
+    signal rst_x : integer range 0 to width - 1 := 0;
+    signal rst_y : integer range 0 to height - 1 := 0;
+
 begin
     -- asynchronous reading
     data_read <= RAM(addr_readY)(addr_readX);
+
+    done_reset <= '1' when current_mode = WRITE else '0';
 
     -- synchronous writing
     SYNC_PROC : process (clk)
     begin
         if rising_edge(clk) then
-            if we = '1' then
-                RAM(addr_writeY)(addr_writeX) <= data_write;
-            end if;
+            case current_mode is
+                when RAM_RESET =>
+                    RAM(rst_y)(rst_x) <= (others => default_value);
+
+                    if rst_x  + 1 = width then
+                        rst_x <= 0;
+                        if rst_y  + 1 = height then
+                            rst_y <= 0;
+                            current_mode <= WRITE;
+                        else
+                            rst_y <= rst_y + 1;
+                        end if;
+                    else
+                        rst_x <= rst_x + 1;
+                    end if;
+                when WRITE =>
+                    if we = '1' then
+                        RAM(addr_writeY)(addr_writeX) <= data_write;
+                    end if;
+
+                    if reset = '1' then
+                        current_mode <= RAM_RESET;
+                    end if;
+            end case;
         end if;
     end process;
 end Behavioral;

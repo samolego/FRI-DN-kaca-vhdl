@@ -21,20 +21,20 @@ entity top is
         SEG : out unsigned(6 downto 0);
         AN : out unsigned(7 downto 0);
         -- signali z gyro
-        ACL_SCLK       : out STD_LOGIC;
-        ACL_MOSI       : out STD_LOGIC;
-        ACL_MISO       : in STD_LOGIC;
-        ACL_CSN        : out STD_LOGIC;
+        ACL_SCLK : out std_logic;
+        ACL_MOSI : out std_logic;
+        ACL_MISO : in std_logic;
+        ACL_CSN : out std_logic;
         -- generalni signali
-        SW : in  std_logic_vector(15 downto 0); 
-        LED : out  std_logic_vector(15 downto 0) --:= (others => '0');
+        SW : in std_logic_vector(15 downto 0);
+        LED : out std_logic_vector(15 downto 0) --:= (others => '0');
         -- ce je simulacija aktivna
         --SIM : in std_logic
     );
 end entity;
 
 architecture Behavioral of top is
-    
+
     -- kaca_engine signali
     -- stevilo ploscic na zaslonu (spritov do dolzini in visini)
     constant SIZE_X : integer := 40;
@@ -58,6 +58,9 @@ architecture Behavioral of top is
     -- ali dovoli zapis sprita
     signal display_we : std_logic := '0';
 
+    -- za reseting ram-a
+    signal done_reset : std_logic := '1';
+
     --signali za display ram
     constant screen_width : integer := 640;
     constant screen_height : integer := 480;
@@ -71,23 +74,23 @@ architecture Behavioral of top is
 
     --ledice in registri
     signal LED_reg : std_logic_vector(15 downto 0);
-    
+
     --signali za gyro
     signal GyroValBuffer : unsigned(31 downto 0);
-    signal levo  : std_logic := '0'; 
-    signal gor   : std_logic := '0'; 
-    signal desno : std_logic := '0'; 
-    signal dol   : std_logic := '0';
-    
-     --signali za sitni in neumni vivado
+    signal levo : std_logic := '0';
+    signal gor : std_logic := '0';
+    signal desno : std_logic := '0';
+    signal dol : std_logic := '0';
+
+    --signali za sitni in neumni vivado
     signal CPU_RESET : std_logic;
     signal smerLevo : std_logic;
     signal smerDesno : std_logic;
     signal smerGor : std_logic;
     signal smerDol : std_logic;
-    signal ceOneSec: std_logic;
+    signal ceOneSec : std_logic;
     signal play : std_logic := '1';
-    
+
 begin
     -- trenutno bo reset z klikom na BTNC
     CPU_RESET <= BTNC; --not CPU_RESETN;
@@ -106,12 +109,14 @@ begin
             smer_premika => smer_premika,
             CLK100MHZ => CLK100MHZ,
             allow_snake_move => allow_snake_move and play,
+            done_reset => done_reset,
             score => score,
             game_over => game_over,
             x_display => x_display,
             y_display => y_display,
             sprite_ix => sprite_ix,
-            display_we => display_we
+            display_we => display_we,
+            reset => CPU_RESET
         );
 
     -- modul, ki nastavi, kdaj se kaca lahko premakne
@@ -152,6 +157,8 @@ begin
         port map(
             clk => CLK100MHZ,
             display_we => display_we,
+            reset => CPU_RESET,
+            done_reset => done_reset,
             addr_writeY => y_display,
             addr_writeX => x_display,
             addr_readY => topAddr_readY,
