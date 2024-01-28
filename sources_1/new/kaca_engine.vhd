@@ -24,9 +24,10 @@ end entity;
 architecture Behavioral of kaca_engine is
     constant word_size : integer := 3;
     constant csnake_startx : integer := width / 2;
-    constant csnake_endx : integer := width / 2 - 1;
+    constant csnake_endx : integer := csnake_startx;
     constant csnake_starty : integer := height / 2;
     constant csnake_endy : integer := csnake_starty;
+
     signal snake_startx : integer range 0 to width - 1 := csnake_startx;
     signal snake_starty : integer range 0 to height - 1 := csnake_starty;
     signal snake_endx : integer range 0 to width - 1 := csnake_endx;
@@ -362,7 +363,11 @@ begin
                         -- javi spremembo repa (trup se spremeni v rep)
                         x_display <= snake_endx;
                         y_display <= snake_endy;
-                        sprite_ix <= "010" & data_read(1 downto 0);
+                        if iscore = 0 then
+                            sprite_ix <= "101" & data_read(1 downto 0);  -- kaca je dolga 1, zapisi mini sprite
+                        else
+                            sprite_ix <= "010" & data_read(1 downto 0);
+                        end if;
                         display_we <= '1';
 
                         state <= POCAKAJ_ZAPIS_NOVEGA_REPA;

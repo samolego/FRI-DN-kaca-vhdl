@@ -31,9 +31,13 @@ architecture Behavioral of framebuffer_RAM2 is
 
     signal read_sprite_idx : std_logic_vector (4 downto 0);
     signal sprite_image_vector : std_logic_vector (0 to 255);
+
+    signal idone_reset : std_logic := '1';
 begin
     --asinhrono branje (enega bita)
-    display_bit_read <= sprite_image_vector((addr_readY mod sprite_size) * sprite_size + addr_readX mod sprite_size);
+    display_bit_read <= sprite_image_vector((addr_readY mod sprite_size) * sprite_size + addr_readX mod sprite_size) when idone_reset = '1' else '1';
+
+    done_reset <= idone_reset;
 
     index2sprite : entity work.index2sprite(Behavioral)
         port map(
@@ -52,7 +56,7 @@ begin
             clk => clk,
             we => display_we,
             reset => reset,
-            done_reset => done_reset,
+            done_reset => idone_reset,
             addr_writeY => addr_writeY,
             addr_writeX => addr_writeX,
             -- ko beremo, beremo po spritih (ne po pixlih), zato delimo s sprite_size
