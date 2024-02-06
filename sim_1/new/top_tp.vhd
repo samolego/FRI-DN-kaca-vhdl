@@ -51,7 +51,7 @@ begin
         VGA_R => VGA_R,
         VGA_G => VGA_G,
         VGA_B => VGA_B,
- --       SIM => '1'
+        SIM => '1', --ODKOMENTIRAJ SIM  v TOP!
         SEG => SEG,
         AN => AN,
         -- signali z gyro

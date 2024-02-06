@@ -14,8 +14,8 @@ entity gyro is
       ACL_MISO           : in STD_LOGIC;
       ACL_CSN           : out STD_LOGIC;
       -- PS2 interface signals
-      ps2_clk        : inout std_logic;
-      ps2_data       : inout std_logic;
+--      ps2_clk        : inout std_logic;
+--      ps2_data       : inout std_logic;
       --7 seg value signal
       SevenSegVal    : out unsigned(31 downto 0);
       -- izhodni signali za smer

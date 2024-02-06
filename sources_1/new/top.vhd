@@ -29,7 +29,7 @@ entity top is
         SW : in std_logic_vector(15 downto 0);
         LED : out std_logic_vector(15 downto 0) --:= (others => '0');
         -- ce je simulacija aktivna
-        --SIM : in std_logic
+--        SIM : in std_logic
     );
 end entity;
 
@@ -93,7 +93,7 @@ architecture Behavioral of top is
 
 begin
     -- trenutno bo reset z klikom na BTNC
-    CPU_RESET <= BTNC; --not CPU_RESETN;
+    CPU_RESET <= not CPU_RESETN; --BTNC; 
     
     --ledice za prikaz signalov
     LED <= (2=>desno, 0=>gor, 3=>levo, 1=>dol, 13|12|11|10|9=>game_over, 14=>SW(14), 15=>SW(15), 4|5|6|7|8=> not play, others =>'0');
@@ -108,7 +108,7 @@ begin
         port map(
             smer_premika => smer_premika,
             CLK100MHZ => CLK100MHZ,
-            allow_snake_move => allow_snake_move and play,
+            allow_snake_move => allow_snake_move and play, -- or SIM,
             done_reset => done_reset,
             score => score,
             game_over => game_over,
