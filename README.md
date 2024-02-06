@@ -14,6 +14,7 @@ Projekt pri predmetu Digitalno Načrtovanje.
 
 * naključno generiranje sadežev
 * start / end screen
+* GAME OVER napis na displayu za točke
 
 
 ## Informacije
@@ -57,7 +58,7 @@ Moduli
         * sprite image bits = vektor 256 bitov (0 = črna, 1 = bela)
 
 * `framebuffer_RAM2`
-  * skrbi za preslikavo stanja igre v pixle. Podamo mu želene koordinate, vrne pa nam 1-bitni pixel na tem mestu.
+  * skrbi za preslikavo stanja igre v pixle. Podamo mu želene koordinate, vrne pa nam 1-bitni pixel na tem mestu
   * podpira vpis spritov: podamo mu koordinate in sprite index - ta bo zapisan na "display"
   * __vhodi__
     * sprite index = 'id' sprita, videni zgoraj
@@ -65,14 +66,33 @@ Moduli
     * X, Y koordinate, kjer želimo prebrati pixel
   * __izhodi__
     * 1-bitni pixel na X, Y koordinatah, podanih zgoraj
+* `kaca_premikalnik`
+  * sinhrono kodira premik smeri v dvobitni signal
+  * __vhodi__
+    * levo, desno, gor, dol (smer iz gyrota or gumb) 
+  * __izhodi__
+    * smer premika
+* `vgaController`
+  * prikaže stanje display rama na ekranu. Bere in riše bit po bit iz framebuffer_RAM2
+  * hitrost osveževanja zaslona je 60Hz
+  * __vhodi__
+    * naslov bita na X in Y ter njegova vrednost
+  * __izhodi__
+    * vsi potrebni VGA signali (VGA_HS, VGA_VS, VGA_R, VGA_G, VGA_B)
+* `scoreDisplay`
+  * prikazuje število pik (16-tiško) na sedem-segmentnem zaslonu.
+  * Ko se igra konča, se na prvih štirih števkah na sekundo izmenjujeta napisa GAME in OVER.
+  * __vhodi__
+    * trenutni score in signal, ki pove ali smo končali igro
+  * __izhodi__
+    * signala za prikaz števk in črk; anode in cathode
+* `Gyro`
+  * Ko vrednost nagiba preseže 70 enot po X ali Y osi, se sproži signal za premik.
+  * z napravo (ADXL362) komuniciramo preko SPI protokola
+  * izračun premika je zelo kompleksen, saj računa integral spreminjanja pospeška skozi čas.
+  * __vhodi__
+    * signali iz Akselometera
+  * __izhodi__
+    * smer zaznanega premika, signali za komunikacijo z Akselometrom
 
 
-### Todo
-
-* [x] - score na 7 segmentni display
-* [x] - game over - @Student-na-praksi
-* [x] - premikanje kače
-  * [x] z gumbi
-  * [x] z giroskopom
-* [x] - naključno generiranje sadežev @samolego
-* [x] - spriti so zrcaljeni preko x in y osi
